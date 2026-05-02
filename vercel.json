@@ -1,7 +1,10 @@
 {
   "version": 2,
-  "name": "bc-engine-webapp",
   "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
     {
       "src": "*.html",
       "use": "@vercel/static"
@@ -11,11 +14,19 @@
       "use": "@vercel/static"
     },
     {
-      "src": "*.js",
+      "src": "logo.png",
       "use": "@vercel/static"
     }
   ],
   "routes": [
+    {
+      "src": "/send-otp",
+      "dest": "server.js"
+    },
+    {
+      "src": "/api/log",
+      "dest": "server.js"
+    },
     {
       "src": "/(.*)",
       "dest": "/$1"
