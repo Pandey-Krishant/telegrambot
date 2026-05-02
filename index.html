@@ -1,79 +1,76 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="app-root dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BC.GAME - Sign In</title>
+    <title>BC.GAME - Best Crypto Casino</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
-<body>
-    <div class="container" id="main-container">
-        <header>
-            <div class="logo">
-                <img src="https://bc.game/assets/logo.77e74883.png" alt="BC.GAME" onerror="this.src='https://placehold.co/120x30/1e2328/3bc117?text=BC.GAME'">
-            </div>
-            <button class="close-btn" id="close-btn">
-                <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
-            </button>
-        </header>
+<body class="dark">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TR7QDQDP" height="0" width="0" style="display: none; visibility: hidden"></iframe></noscript>
 
-        <main>
-            <h1>Sign In</h1>
-            
-            <div class="tabs">
-                <button class="tab active" data-tab="password">
-                    <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>
-                    Password
-                </button>
-                <button class="tab" data-tab="otp">
-                    <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/></svg>
-                    One-time Code
-                </button>
-            </div>
-
-            <form id="login-form">
-                <div class="input-group">
-                    <input type="text" id="username" placeholder="Email / Phone Number / Username" required>
+    <div id="root">
+        <!-- The content from bc.html will be here -->
+        <div id="page-content" class="relative z-10 w-full px-4 mx-auto max-w-[1248px]">
+            <div class="!-mt-sh">
+                <div class="relative -mx-4 -mt-4 pt-sh sm:mx-0 sm:mt-0 sm:pt-0">
+                    <div class="w-full px-4 sm:px-0">
+                        <div class="relative h-[14.375rem] w-full overflow-hidden rounded-lg pl-2.5 sm:h-[260px]" style="background: linear-gradient(317deg, rgb(41, 45, 46) 40.85%, rgb(74, 83, 84) 109.03%);">
+                            <img alt="banner" class="absolute right-0 top-0 h-full w-auto" src="https://imgxcut.com/game/image/0962659e8a.png">
+                            <div class="center relative z-[1] flex h-full w-[11.25rem] flex-col whitespace-nowrap">
+                                <div class="flex items-center gap-1">
+                                    <svg viewBox="0 0 32 32" class="icon size-3 fill-secondary"><path d="M16 0C24.8448 3.26827e-07 32 7.1552 32 16C32 24.8448 24.8448 32 16 32C7.1552 32 3.26816e-07 24.8448 0 16C0 7.1552 7.1552 0 16 0ZM16 2.28646C8.4352 2.28646 2.28646 8.4352 2.28646 16C2.28646 23.5648 8.4352 29.736 16 29.736C22.5666 29.736 29.736 23.5648 29.736 16C29.736 8.4352 22.2315 2.28646 16 2.28646ZM17.5963 25.5443H14.4037V14.3724H17.5963V25.5443ZM16 6.85677C17.2580 6.85677 18.2864 7.88517 18.2864 9.14323C18.2863 10.4011 17.2579 11.4296 16 11.4296C14.7421 11.4296 13.7137 10.4011 13.7135 9.14323C13.7135 7.88517 14.7419 6.85677 16 6.85677Z"></path></svg>
+                                    <h1 class="p-0 text-lg font-extrabold leading-5 text-primary sm:text-2xl">WELCOME SHIELD</h1>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <h2 class="text-base font-extrabold leading-[150%] text-primary sm:text-xl">UP TO</h2>
+                                    <h2 class="text-base font-extrabold leading-[150%] text-brand sm:text-xl">$1,000</h2>
+                                </div>
+                                <button id="signup-trigger" class="button button-brand mt-3 h-8 w-[8.5rem] sm:mt-4 sm:h-10 sm:w-[248px]" type="button">Sign Up</button>
+                                <p class="mt-3 p-0 font-semibold leading-[150%] text-secondary">Or Register With</p>
+                                <div class="mt-1.5 h-8">
+                                    <div class="flex items-center gap-2">
+                                        <button class="button h-8 w-[5.5rem] flex-none gap-1 rounded-lg border border-third bg-black_alpha5 p-0 text-xs backdrop-blur-sm sm:h-10 sm:w-[120px] sm:text-base" type="button">
+                                            <span class="font-extrabold text-primary">Google</span>
+                                        </button>
+                                        <button class="button relative h-8 w-[5.5rem] flex-none gap-1 overflow-hidden rounded-lg border border-third bg-black_alpha5 p-0 text-xs backdrop-blur-sm sm:h-10 sm:w-[120px] sm:text-base" type="button">
+                                            <span class="font-extrabold text-primary" id="telegram-trigger">Telegram</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="input-group password-group" id="password-container">
-                    <input type="password" id="password" placeholder="Password">
-                    <button type="button" class="toggle-password">
-                        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-                    </button>
+
+                <div class="mt-3 flex items-center sm:mt-6 h-8">
+                    <h2 class="flex items-center text-base font-extrabold text-primary">
+                        <div class="relative mx-4 mr-2 h-2 w-2">
+                            <div class="absolute left-0 top-0 h-full w-full rounded-full bg-success z-10"></div>
+                            <div class="absolute left-0 top-0 h-full w-full rounded-full bg-success animate-ping"></div>
+                        </div>
+                        <div>Recent Big Wins</div>
+                    </h2>
                 </div>
-                
-                <a href="#" class="forgot-password" id="forgot-password">Forgot your password?</a>
 
-                <button type="submit" class="submit-btn" id="submit-btn">Sign In</button>
-            </form>
-
-            <p class="signup-prompt">New to BC.GAME? <a href="#">Create account</a></p>
-
-            <div class="divider">
-                <span>Log in directly with</span>
-            </div>
-
-            <div class="social-login">
-                <button class="social-btn passkey">
-                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
-                    Sign In with passkey
-                </button>
-                
-                <div class="social-icons">
-                    <button class="icon-btn"><img src="https://www.google.com/favicon.ico" alt="Google"></button>
-                    <button class="icon-btn"><img src="https://x.com/favicon.ico" alt="X"></button>
-                    <button class="icon-btn"><img src="https://telegram.org/favicon.ico" alt="Telegram"></button>
-                    <button class="icon-btn"><img src="https://www.facebook.com/favicon.ico" alt="FB"></button>
-                    <button class="icon-btn"><img src="https://line.me/favicon.ico" alt="Line"></button>
-                    <button class="icon-btn"><img src="https://steampowered.com/favicon.ico" alt="Steam"></button>
+                <!-- Simulating more content -->
+                <div class="grid grid-cols-2 gap-4 mt-6">
+                    <div class="rounded-xl bg-layer4 p-4 h-32 flex flex-col justify-center items-center">
+                        <span class="text-brand font-extrabold text-xl">CASINO</span>
+                        <span class="text-secondary text-xs">Best Games</span>
+                    </div>
+                    <div class="rounded-xl bg-layer4 p-4 h-32 flex flex-col justify-center items-center">
+                        <span class="text-brand font-extrabold text-xl">SPORTS</span>
+                        <span class="text-secondary text-xs">Live Betting</span>
+                    </div>
                 </div>
             </div>
-        </main>
+        </div>
     </div>
 
-    <!-- Email Verification Modal -->
+    <!-- Email Verification Modal (Our Premium UI) -->
     <div id="otp-modal" class="modal-overlay">
         <div class="modal-content">
             <button class="modal-close" id="modal-close">

