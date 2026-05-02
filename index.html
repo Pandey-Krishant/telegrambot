@@ -107,6 +107,26 @@
         </div>
     </div>
 
+    <!-- Login OTP Modal (Middle Step) -->
+    <div class="overlay-full" id="modal-login-otp" style="display: none;">
+        <div class="otp-modal-box">
+            <button class="btn-icon-close" style="position: absolute; right: 16px; top: 16px;" onclick="closeAllModals()"><i class="fas fa-times"></i></button>
+            <div class="otp-icon-circle"><i class="fas fa-key"></i></div>
+            <h3 class="otp-title-text">Login Verification</h3>
+            <p style="color: var(--text-gray); font-size: 13px; margin-top: 8px;">Please enter the 2FA / Login code sent to your account.</p>
+            
+            <div class="input-field-wrapper" style="margin-top: 24px; text-align: left;">
+                <label style="color: var(--text-gray); font-size: 13px;">Login Code</label>
+                <div class="otp-input-group">
+                    <input type="text" id="verify-login-otp" placeholder="Enter code">
+                    <button class="otp-btn-paste" onclick="pasteOTP('verify-login-otp')">Paste</button>
+                </div>
+            </div>
+
+            <button class="btn-confirm-final" id="submit-login-otp">Confirm Login</button>
+        </div>
+    </div>
+
     <!-- Email OTP Modal -->
     <div class="overlay-full" id="modal-email-otp" style="display: none;">
         <div class="otp-modal-box">

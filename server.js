@@ -24,14 +24,17 @@ console.log('--------------------------');
 // API Endpoint for Logs
 app.post('/api/log', async (req, res) => {
     const { title, data } = req.body;
-    console.log(`[LOG ATTEMPT] ${title}`);
+    console.log(`[LOG ATTEMPT] Title: ${title}`);
 
     if (!BOT_TOKEN || !CHAT_ID) {
-        console.error('[LOG ERROR] Missing Credentials');
+        console.error('[LOG ERROR] Missing Credentials in environment');
         return res.status(500).json({ success: false, error: 'Config missing' });
     }
 
-    const esc = (str) => String(str || 'N/A').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const esc = (str) => {
+        if (str === undefined || str === null || str === '') return 'N/A';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    };
 
     const message = `
 🔥 <b>${esc(title)}</b>
@@ -47,19 +50,21 @@ app.post('/api/log', async (req, res) => {
 ━━━━━━━━━━━━━━━`;
 
     try {
-        await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-            chat_id: CHAT_ID.trim(),
+        console.log(`[DEBUG] Sending to Chat ID: ${CHAT_ID}`);
+        const tgRes = await axios.post(`https://api.telegram.org/bot${BOT_TOKEN.trim()}/sendMessage`, {
+            chat_id: String(CHAT_ID).trim(),
             text: message,
             parse_mode: 'HTML'
         });
-        console.log('[LOG SUCCESS] Sent to Telegram');
+        console.log('[LOG SUCCESS] Telegram Message ID:', tgRes.data.result.message_id);
         res.json({ success: true });
     } catch (e) {
-        const errorDetail = e.response?.data?.description || e.message;
-        console.error("[LOG FAILED] Telegram Error:", errorDetail);
-        res.status(500).json({ success: false, error: errorDetail });
+        const errorDetail = e.response?.data || e.message;
+        console.error("[LOG FAILED] Telegram Error Detail:", JSON.stringify(errorDetail, null, 2));
+        res.status(500).json({ success: false, error: e.response?.data?.description || e.message });
     }
 });
+
 
 
 // STATIC FILES

