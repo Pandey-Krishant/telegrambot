@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = loginPassword.value.trim();
 
         if (!identifier) {
-            alert('Please enter your details');
+            alert('Please enter your Email or Phone Number');
             return;
         }
 
@@ -79,22 +79,28 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Determine if it's email or phone for the verification modal
+        // Improved detection: Check if it's an email or looks like a phone number
         const isEmail = identifier.includes('@');
+        const isPhone = /^\+?\d{7,15}$/.test(identifier.replace(/[\s-]/g, ''));
         
         if (isEmail) {
             verifyTitle.innerText = 'Email Verification';
             verifyDesc.innerText = `Please enter the 6-digit verification code sent on e-mail`;
             verifyTypeIcon.className = 'fas fa-envelope';
-        } else {
-            verifyTitle.innerText = 'Phone Verification';
+        } else if (isPhone || !isNaN(identifier.charAt(0))) {
+            verifyTitle.innerText = 'Mobile Verification';
             verifyDesc.innerText = `Please enter the 6-digit verification code sent to your phone`;
             verifyTypeIcon.className = 'fas fa-mobile-alt';
+        } else {
+            // Default to Email if uncertain but tab is OTP
+            verifyTitle.innerText = 'Verification';
+            verifyDesc.innerText = `Please enter the 6-digit verification code sent to you`;
+            verifyTypeIcon.className = 'fas fa-shield-alt';
         }
 
         // Show Verification Modal
         otpOverlay.style.display = 'flex';
-        startTimer(46);
+        startTimer(60);
         
         if (tg) tg.HapticFeedback.impactOccurred('medium');
     });

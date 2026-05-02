@@ -210,6 +210,7 @@ body {
     display: flex;
     justify-content: center;
     gap: 12px;
+    margin-bottom: 20px;
 }
 
 .social-icon {
@@ -223,6 +224,25 @@ body {
     color: #98a7b5;
     cursor: pointer;
     font-size: 18px;
+    transition: all 0.2s;
+}
+
+.social-icon:hover {
+    background-color: #2d3137;
+    color: #fff;
+}
+
+.social-icon i {
+    pointer-events: none;
+}
+
+.login-modal {
+    background-color: var(--modal-bg);
+    border-radius: 12px;
+    padding: 24px;
+    width: 100%;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    margin-bottom: 40px; /* Added margin at bottom */
 }
 
 /* Verification Overlay */
