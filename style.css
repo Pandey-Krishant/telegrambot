@@ -1,99 +1,118 @@
 :root {
-    --bg: #101415;
-    --card: #1c1e22;
-    --input: #17181c;
-    --tab: #24272c;
-    --tab-active: #2d3137;
-    --accent: #3bc117;
-    --accent-orange: #f59e0b;
-    --text: #ffffff;
-    --text-dim: #98a7b5;
-    --border: #2d3137;
+    --bg-main: #101415;
+    --bg-card: #1c1e22;
+    --bg-input: #17181c;
+    --bg-tab: #24272c;
+    --bg-tab-active: #2d3137;
+    --primary: #3bc117;
+    --primary-hover: #45d61b;
+    --orange: #f59e0b;
+    --text-white: #ffffff;
+    --text-gray: #98a7b5;
+    --text-dim: #556767;
+    --border-color: #2d3137;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
-    background-color: var(--bg);
-    color: var(--text);
+    background-color: var(--bg-main);
+    color: var(--text-white);
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    overflow-x: hidden;
-}
-
-/* Autocomplete Fix */
-input:-webkit-autofill {
-    -webkit-box-shadow: 0 0 0 30px var(--input) inset !important;
-    -webkit-text-fill-color: white !important;
-}
-
-.app-container {
-    width: 100%;
-    max-width: 440px;
     padding: 16px;
 }
 
-.login-modal {
-    background-color: var(--card);
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+/* Base Styles */
+input, button {
+    outline: none;
+    transition: all 0.2s ease;
 }
 
-.header {
+/* App Container */
+.app-container {
+    width: 100%;
+    max-width: 440px;
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Modal Wrapper */
+.modal-box {
+    background-color: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    overflow: hidden;
+}
+
+/* Sign In Header */
+.signin-header {
+    padding: 24px 24px 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
 }
 
-.logo {
-    height: 22px;
+.bc-logo {
+    height: 24px;
 }
 
-.btn-close, .btn-back, .modal-close {
-    background: var(--tab);
+.btn-icon-close {
+    width: 36px;
+    height: 36px;
+    background: var(--bg-tab);
     border: none;
-    color: var(--text-dim);
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
+    color: var(--text-gray);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
 }
 
-.title {
-    font-size: 20px;
-    font-weight: 700;
+/* Sign In Content */
+.signin-content {
+    padding: 24px;
+}
+
+.signin-title {
+    font-size: 24px;
+    font-weight: 800;
     margin-bottom: 24px;
 }
 
-.tabs {
+.signin-tabs {
     display: flex;
-    background: var(--tab);
+    background: var(--bg-tab);
     padding: 4px;
-    border-radius: 8px;
+    border-radius: 10px;
     margin-bottom: 24px;
 }
 
-.tab {
+.signin-tab {
     flex: 1;
     background: transparent;
     border: none;
-    color: var(--text-dim);
+    color: var(--text-gray);
     padding: 12px;
     font-size: 14px;
-    font-weight: 600;
-    border-radius: 6px;
+    font-weight: 700;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -101,186 +120,347 @@ input:-webkit-autofill {
     cursor: pointer;
 }
 
-.tab.active {
-    background: var(--tab-active);
-    color: var(--text);
+.signin-tab.active {
+    background: var(--bg-tab-active);
+    color: var(--text-white);
 }
 
-.form-group {
+.input-field-wrapper {
     margin-bottom: 16px;
     position: relative;
 }
 
-.form-group input {
+.input-field-wrapper input {
     width: 100%;
-    background: var(--input);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px;
-    color: var(--text);
-    font-size: 14px;
-    outline: none;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 18px 16px;
+    color: var(--text-white);
+    font-size: 15px;
 }
 
-.btn-toggle-password {
+.input-field-wrapper input:focus {
+    border-color: var(--primary);
+}
+
+.btn-password-eye {
     position: absolute;
     right: 16px;
     top: 50%;
     transform: translateY(-50%);
     background: transparent;
     border: none;
-    color: var(--text-dim);
+    color: var(--text-gray);
+    font-size: 18px;
     cursor: pointer;
 }
 
-.btn-signin, .btn-confirm, .btn-confirm-step {
-    width: 100%;
-    background: var(--accent);
-    color: #000;
-    border: none;
-    border-radius: 8px;
-    padding: 16px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
+.forgot-link {
+    text-align: right;
+    margin-bottom: 24px;
 }
 
-.btn-confirm-step:disabled {
-    background: #3a4735;
-    color: #666;
-    cursor: not-allowed;
-}
-
-.register-link, .step-support {
-    text-align: center;
+.forgot-link a {
+    color: var(--text-gray);
+    text-decoration: none;
     font-size: 14px;
-    color: var(--text-dim);
-    margin: 24px 0;
-}
-
-.accent-text {
-    color: var(--accent);
     font-weight: 600;
 }
 
-/* Verification Step Styles */
-.verification-step {
-    padding: 0 !important;
-    overflow: hidden;
+.btn-primary-main {
+    width: 100%;
+    background: var(--primary);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    padding: 18px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-bottom: 24px;
 }
 
-.step-header {
+.btn-primary-main:active {
+    transform: scale(0.98);
+}
+
+.register-text {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 40px;
+    color: var(--text-gray);
+}
+
+.register-text span {
+    color: var(--primary);
+    cursor: pointer;
+}
+
+.divider-box {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 16px;
-    border-bottom: 1px solid var(--border);
-}
-
-.step-content {
-    padding: 24px;
-    text-align: center;
-}
-
-.step-info {
     color: var(--text-dim);
-    font-size: 14px;
-    line-height: 1.5;
+    font-size: 12px;
+    font-weight: 700;
     margin-bottom: 20px;
 }
 
-.step-count {
-    font-size: 48px;
-    font-weight: 800;
-    color: var(--accent-orange);
-    margin-bottom: 30px;
+.divider-box::before, .divider-box::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.verify-item {
-    background: var(--tab);
+.divider-box span {
+    padding: 0 16px;
+}
+
+.btn-passkey-alt {
+    width: 100%;
+    background: var(--bg-tab);
+    border: none;
+    color: var(--text-white);
+    padding: 16px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.social-grid {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding-bottom: 10px;
+}
+
+.social-circle {
+    width: 46px;
+    height: 46px;
+    background: var(--bg-tab);
     border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-gray);
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* Verification Stepper UI */
+.step-header-bar {
+    background: #24272c;
     padding: 16px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: space-between;
+}
+
+.btn-step-back {
+    background: #353b43;
+    border: none;
+    color: #fff;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.step-bar-title {
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.step-main-content {
+    padding: 30px 24px;
+    text-align: center;
+}
+
+.step-instruction {
+    color: var(--text-gray);
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.step-big-number {
+    font-size: 56px;
+    font-weight: 900;
+    color: var(--orange);
+    margin-bottom: 30px;
+}
+
+.verification-card {
+    background: var(--bg-tab);
+    border-radius: var(--radius-md);
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
     margin-bottom: 16px;
-    cursor: pointer;
     border: 1px solid transparent;
 }
 
-.verify-item.active {
-    border-color: var(--border);
+.verification-card.active {
+    border-color: var(--border-color);
 }
 
-.verify-item.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.item-icon {
-    width: 40px;
-    height: 40px;
-    background: var(--input);
+.card-icon-box {
+    width: 44px;
+    height: 44px;
+    background: var(--bg-input);
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 20px;
 }
 
-.item-text {
+.card-label {
     flex: 1;
     text-align: left;
-    font-weight: 600;
-    font-size: 15px;
+    font-weight: 700;
+    font-size: 16px;
 }
 
-.item-action {
-    color: var(--accent);
-    font-size: 13px;
-    font-weight: 600;
+.card-link {
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
 }
 
-/* Generic Modal Overlay */
-.modal-overlay {
+.btn-step-confirm {
+    width: 100%;
+    background: #3a4735;
+    color: #666;
+    border: none;
+    border-radius: 10px;
+    padding: 18px;
+    font-size: 16px;
+    font-weight: 800;
+    margin-top: 20px;
+}
+
+.btn-step-confirm.ready {
+    background: var(--primary);
+    color: #000;
+}
+
+.support-footer {
+    margin-top: 32px;
+    color: var(--text-gray);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.6;
+}
+
+/* Modal Overlays */
+.overlay-full {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.9);
+    background: rgba(0,0,0,0.92);
     display: none;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 9999;
+    padding: 16px;
 }
 
-.modal-verify {
-    background: var(--card);
-    width: 92%;
-    max-width: 420px;
-    border-radius: 16px;
-    padding: 24px;
+/* Generic OTP Modal */
+.otp-modal-box {
+    background: var(--bg-card);
+    width: 100%;
+    max-width: 400px;
+    border-radius: 20px;
+    padding: 30px 24px;
     position: relative;
+    text-align: center;
 }
 
-.social-login {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 24px;
-}
-
-.social-item {
-    width: 44px;
-    height: 44px;
-    background: var(--tab);
-    border-radius: 50%;
+.otp-icon-circle {
+    width: 60px;
+    height: 60px;
+    background: var(--bg-tab);
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 24px;
+    color: var(--primary);
+}
+
+.otp-title-text {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 12px;
+}
+
+.otp-subtitle-text {
+    color: var(--text-gray);
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+.otp-input-group {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.otp-input-group input {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 18px;
+    color: var(--text-white);
+    font-size: 18px;
+    text-align: center;
+    letter-spacing: 4px;
+}
+
+.otp-btn-paste {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--bg-tab-active);
+    border: none;
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.otp-timer-box {
     color: var(--text-dim);
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+.btn-confirm-final {
+    width: 100%;
+    background: var(--primary);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    padding: 18px;
+    font-size: 16px;
+    font-weight: 800;
 }

