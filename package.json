@@ -6,6 +6,7 @@
   "scripts": {
     "start-bot": "node bot.js",
     "start-web": "node server.js",
+    "start": "node dev.js",
     "dev": "node dev.js"
   },
   "keywords": [],

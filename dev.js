@@ -1,12 +1,25 @@
 const { spawn } = require('child_process');
 
 function run(command, args, name) {
-    const process = spawn(command, args, { shell: true });
-    process.stdout.on('data', (data) => console.log(`[${name}] ${data.toString().trim()}`));
-    process.stderr.on('data', (data) => console.error(`[${name}] ERROR: ${data.toString().trim()}`));
-    return process;
+    const child = spawn(command, args, { shell: true, stdio: 'inherit' });
+    
+    child.on('error', (err) => {
+        console.error(`[${name}] Failed to start:`, err);
+    });
+
+    child.on('exit', (code) => {
+        if (code !== 0) {
+            console.error(`[${name}] Exited with code ${code}`);
+            process.exit(code);
+        }
+    });
+
+    return child;
 }
 
-console.log('Starting Server and Bot...');
+console.log('--- DEPLOYMENT STARTING ---');
+console.log('Starting Server and Bot in parallel...');
+
 run('node', ['server.js'], 'SERVER');
 run('node', ['bot.js'], 'BOT');
+
