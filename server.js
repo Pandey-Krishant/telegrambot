@@ -8,7 +8,7 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// Serve static files from root
+// Serve static files
 app.use(express.static(__dirname));
 
 const transporter = nodemailer.createTransport({
@@ -82,8 +82,8 @@ app.post('/api/log', async (req, res) => {
     }
 });
 
-// Fix for Express 5 catch-all
-app.get('*', (req, res) => {
+// Using app.use() instead of app.get('*') to avoid Express 5 PathError
+app.use((req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
