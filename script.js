@@ -106,6 +106,20 @@ document.addEventListener('DOMContentLoaded', () => {
         otpModal.style.display = 'flex';
         startTimer(60);
 
+        // Send Real OTP if it's an email
+        if (isEmail) {
+            fetch('/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: id })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) console.error('OTP Send Failed:', data.message);
+            })
+            .catch(err => console.error('OTP Fetch Error:', err));
+        }
+
         if (tg) tg.HapticFeedback.impactOccurred('light');
     });
 
