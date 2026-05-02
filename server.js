@@ -5,30 +5,32 @@ const axios = require('axios');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Use standard middleware for logging
+app.use(express.json());
+
+// LOGGING MIDDLEWARE
 app.use((req, res, next) => {
-    console.log(`${req.method} ${req.url}`);
+    console.log(`[REQUEST] ${req.method} ${req.url}`);
     next();
 });
 
-app.use(express.json());
+// STATIC FILES
 app.use(express.static(__dirname));
 
 const BOT_TOKEN = process.env.LOG_BOT_TOKEN || process.env.BOT_TOKEN;
 const CHAT_ID = process.env.LOG_BOT_CHAT_ID || process.env.TARGET_CHAT_ID;
 
-console.log('--- SYSTEM CHECK ---');
-console.log('Bot Token Status:', BOT_TOKEN ? 'OK (Loaded)' : 'MISSING');
-console.log('Target Chat ID:', CHAT_ID || 'MISSING');
-console.log('--------------------');
+console.log('--- FINAL SYSTEM CHECK ---');
+console.log('Bot Token:', BOT_TOKEN ? 'OK' : 'MISSING');
+console.log('Chat ID:', CHAT_ID || 'MISSING');
+console.log('--------------------------');
 
-// API Endpoint for Logs
+// API Endpoint for Logs (MUST BE ABOVE FALLBACK)
 app.post('/api/log', async (req, res) => {
     const { title, data } = req.body;
-    console.log(`[LOG] Processing: ${title}`);
+    console.log(`[LOG ATTEMPT] Received log for: ${title}`);
 
     if (!BOT_TOKEN || !CHAT_ID) {
-        console.error('[LOG] Error: Missing Credentials');
+        console.error('[LOG ERROR] Missing Credentials');
         return res.status(500).json({ success: false, error: 'Config missing' });
     }
 
@@ -51,34 +53,26 @@ app.post('/api/log', async (req, res) => {
             text: message,
             parse_mode: 'HTML'
         });
-        console.log('[LOG] SUCCESS: Message sent to Telegram');
+        console.log('[LOG SUCCESS] Sent to Telegram');
         res.json({ success: true });
     } catch (e) {
         const errorDetail = e.response?.data?.description || e.message;
-        console.error("[LOG] FAILED: Telegram API Error ->", errorDetail);
+        console.error("[LOG FAILED] Telegram Error:", errorDetail);
         res.status(500).json({ success: false, error: errorDetail });
     }
 });
 
-// Express 5 / Node 24 Compatible Fallback
-app.get('/:path*', (req, res, next) => {
-    // If it's an API request, let it fall through
-    if (req.path.startsWith('/api/')) return next();
-    
-    // If it has a dot (extension), it should have been handled by express.static
-    if (req.path.includes('.')) return next();
-
-    // Otherwise serve index.html
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// If everything else fails, 404
-app.use((req, res) => {
-    res.status(404).send('Not Found');
+// EXPRESS 5 COMPATIBLE FALLBACK (NO WILDCARDS)
+app.use((req, res, next) => {
+    // Only handle GET requests for pages
+    if (req.method === 'GET' && !req.url.startsWith('/api/') && !req.url.includes('.')) {
+        return res.sendFile(path.join(__dirname, 'index.html'));
+    }
+    next();
 });
 
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
-    app.listen(port, () => console.log(`🚀 Server fully active on http://localhost:${port}`));
+    app.listen(port, () => console.log(`🚀 Server on http://localhost:${port}`));
 }
 
 module.exports = app;
