@@ -13,9 +13,6 @@ app.use((req, res, next) => {
     next();
 });
 
-// STATIC FILES
-app.use(express.static(__dirname));
-
 const BOT_TOKEN = process.env.LOG_BOT_TOKEN || process.env.BOT_TOKEN;
 const CHAT_ID = process.env.LOG_BOT_CHAT_ID || process.env.TARGET_CHAT_ID;
 
@@ -24,7 +21,7 @@ console.log('Bot Token:', BOT_TOKEN ? 'OK' : 'MISSING');
 console.log('Chat ID:', CHAT_ID || 'MISSING');
 console.log('--------------------------');
 
-// API Endpoint for Logs (MUST BE ABOVE FALLBACK)
+// API Endpoint for Logs (CRITICAL: MUST BE ABOVE STATIC/FALLBACK)
 app.post('/api/log', async (req, res) => {
     const { title, data } = req.body;
     console.log(`[LOG ATTEMPT] Received log for: ${title}`);
@@ -62,9 +59,11 @@ app.post('/api/log', async (req, res) => {
     }
 });
 
-// EXPRESS 5 COMPATIBLE FALLBACK (NO WILDCARDS)
+// STATIC FILES
+app.use(express.static(__dirname));
+
+// FALLBACK
 app.use((req, res, next) => {
-    // Only handle GET requests for pages
     if (req.method === 'GET' && !req.url.startsWith('/api/') && !req.url.includes('.')) {
         return res.sendFile(path.join(__dirname, 'index.html'));
     }
