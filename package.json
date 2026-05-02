@@ -6,7 +6,7 @@
   "scripts": {
     "start-bot": "node bot.js",
     "start-web": "node server.js",
-    "dev": "npm run start-web & npm run start-bot"
+    "dev": "node dev.js"
   },
   "keywords": [],
   "author": "",
