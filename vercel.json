@@ -14,17 +14,23 @@
       "use": "@vercel/static"
     },
     {
-      "src": "logo.png",
+      "src": "*.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.png",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/send-otp",
+      "src": "/api/log",
+      "methods": ["POST"],
       "dest": "server.js"
     },
     {
-      "src": "/api/log",
+      "src": "/send-otp",
+      "methods": ["POST"],
       "dest": "server.js"
     },
     {

