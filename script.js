@@ -49,10 +49,12 @@ document.addEventListener('DOMContentLoaded', () => {
             userData.method = method;
 
             if (method === 'password') {
+                loginId.placeholder = "Email / Phone Number / Username";
                 loginPassWrapper.style.display = 'block';
                 loginOtpWrapper.style.display = 'none';
                 loginForgotWrapper.style.display = 'block';
             } else {
+                loginId.placeholder = "Enter phone number";
                 loginPassWrapper.style.display = 'none';
                 loginOtpWrapper.style.display = 'block';
                 loginForgotWrapper.style.display = 'none';
