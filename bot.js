@@ -25,10 +25,6 @@ bot.on('text', async (ctx) => {
     if (/^\d+$/.test(uid)) {
         const profileText = `BC GAME PLAYER PROFILE
 ━━━━━━━━━━━━━━━━━━━━
-👤 Name  : gammaophq
-🆔 UID   : ${uid}
-🥇 Rank  : Beginner
-━━━━━━━━━━━━━━━━━━━━
 BONUS DETAILS
 ━━━━━━━━━━━━━━━━━━━━
 🎁 ENGINE REWARDS
