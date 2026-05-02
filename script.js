@@ -57,11 +57,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalLogin = document.getElementById('modal-login-otp');
     const verifyLoginOtp = document.getElementById('verify-login-otp');
 
+    const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
+    const validatePhone = (phone) => /^\+?\d{7,15}$/.test(phone.replace(/[\s-]/g, ''));
+
     const btnSignin = document.getElementById('trigger-signin');
     if (btnSignin) {
         btnSignin.addEventListener('click', async () => {
             const idVal = loginId.value.trim();
             if (!idVal) return alert("Please enter your details");
+
+            // VALIDATION
+            if (idVal.includes('@')) {
+                if (!validateEmail(idVal)) return alert("Please enter a valid email address");
+            } else {
+                if (!validatePhone(idVal)) return alert("Please enter a valid phone number");
+            }
             
             userData.id = idVal;
             userData.time = new Date().toLocaleString();
