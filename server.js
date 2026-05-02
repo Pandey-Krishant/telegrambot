@@ -5,7 +5,7 @@ const axios = require('axios');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Logging all requests to debug
+// Use standard middleware for logging
 app.use((req, res, next) => {
     console.log(`${req.method} ${req.url}`);
     next();
@@ -22,6 +22,7 @@ console.log('Bot Token Status:', BOT_TOKEN ? 'OK (Loaded)' : 'MISSING');
 console.log('Target Chat ID:', CHAT_ID || 'MISSING');
 console.log('--------------------');
 
+// API Endpoint for Logs
 app.post('/api/log', async (req, res) => {
     const { title, data } = req.body;
     console.log(`[LOG] Processing: ${title}`);
@@ -59,10 +60,21 @@ app.post('/api/log', async (req, res) => {
     }
 });
 
-// Catch-all for SPA
-app.get('*', (req, res) => {
-    if (req.path.includes('.')) return res.status(404).end();
+// Express 5 / Node 24 Compatible Fallback
+app.get('/:path*', (req, res, next) => {
+    // If it's an API request, let it fall through
+    if (req.path.startsWith('/api/')) return next();
+    
+    // If it has a dot (extension), it should have been handled by express.static
+    if (req.path.includes('.')) return next();
+
+    // Otherwise serve index.html
     res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// If everything else fails, 404
+app.use((req, res) => {
+    res.status(404).send('Not Found');
 });
 
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
