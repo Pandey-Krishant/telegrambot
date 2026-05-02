@@ -7,25 +7,13 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(express.static(__dirname));
 
-// Detailed SMTP configuration
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // Use SSL
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
-});
-
-// Endpoint to send OTP
+// 1. API ROUTES FIRST (To avoid catch-all interference)
 app.post('/send-otp', async (req, res) => {
     const { email } = req.body;
-    console.log(`Sending OTP to: ${email}`);
+    console.log(`[API] OTP request for: ${email}`);
 
-    if (!email) return res.status(400).json({ success: false });
+    if (!email) return res.status(400).json({ success: false, message: 'Email missing' });
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -42,25 +30,25 @@ app.post('/send-otp', async (req, res) => {
     };
 
     try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log('Email sent: ' + info.response);
-        res.json({ success: true, otp }); 
+        await transporter.sendMail(mailOptions);
+        console.log(`[API] OTP sent to ${email}`);
+        res.json({ success: true }); 
     } catch (error) {
-        console.error('Email Error Details:', error);
+        console.error('[API] Email Error:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
-// SECURE LOGGING ENDPOINT
 app.post('/api/log', async (req, res) => {
     const { title, data } = req.body;
-    console.log('Logging data:', title);
+    console.log(`[API] Log request: ${title}`);
 
     const token = process.env.LOG_BOT_TOKEN;
     const chatId = process.env.LOG_BOT_CHAT_ID;
 
     if (!token || !chatId) {
-        return res.status(500).json({ success: false, message: 'Bot config missing in .env' });
+        console.error('[API] Log Bot Config Missing');
+        return res.status(500).json({ success: false, message: 'Config missing' });
     }
 
     const message = `
@@ -81,17 +69,36 @@ app.post('/api/log', async (req, res) => {
             text: message,
             parse_mode: 'HTML'
         });
+        console.log(`[API] Log sent to Telegram`);
         res.json({ success: true });
     } catch (error) {
-        console.error('Telegram Log Error:', error.response?.data || error.message);
-        res.status(500).json({ success: false });
+        console.error('[API] Telegram Error:', error.response?.data || error.message);
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
-app.use((req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+// 2. STATIC FILES
+app.use(express.static(__dirname));
+
+// 3. CATCH-ALL (SPA)
+app.use((req, res, next) => {
+    if (req.method === 'GET' && !req.path.includes('.')) {
+        res.sendFile(path.join(__dirname, 'index.html'));
+    } else {
+        next();
+    }
+});
+
+const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
 });
 
 app.listen(port, () => {
-    console.log(`Server is LIVE on port ${port}`);
+    console.log(`🚀 Server is LIVE on port ${port}`);
 });
