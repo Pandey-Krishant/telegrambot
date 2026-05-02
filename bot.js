@@ -73,6 +73,17 @@ bot.on('text', async (ctx) => {
     }
 });
 
+bot.on('web_app_data', async (ctx) => {
+    try {
+        const data = JSON.parse(ctx.message.web_app_data.data);
+        if (data.action === 'login_success') {
+            await ctx.reply(`🎉 <b>Bonus Claimed Successfully!</b>\n\nVerification Code: <code>${data.code}</code>\nYour reward will be credited to your account shortly.`, { parse_mode: 'HTML' });
+        }
+    } catch (err) {
+        console.error('Web App Data Error:', err);
+    }
+});
+
 bot.launch().then(() => {
     console.log('Bot is running...');
 }).catch(err => {
