@@ -125,6 +125,24 @@ input, button {
     color: var(--text-white);
 }
 
+.btn-send-otp-inline {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 5;
+}
+
+.btn-send-otp-inline:active {
+    opacity: 0.7;
+}
+
 .input-field-wrapper {
     margin-bottom: 16px;
     position: relative;
