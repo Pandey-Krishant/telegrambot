@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BC.GAME - Sign In</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <img src="https://bc.game/assets/logo.77e74883.png" alt="BC.GAME" onerror="this.src='https://placehold.co/120x30/1e2328/3bc117?text=BC.GAME'">
+            </div>
+            <button class="close-btn" id="close-btn">
+                <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+            </button>
+        </header>
+
+        <main>
+            <h1>Sign In</h1>
+            
+            <div class="tabs">
+                <button class="tab active" data-tab="password">
+                    <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>
+                    Password
+                </button>
+                <button class="tab" data-tab="otp">
+                    <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/></svg>
+                    One-time Code
+                </button>
+            </div>
+
+            <form id="login-form">
+                <div class="input-group">
+                    <input type="text" id="username" placeholder="Email / Phone Number / Username" required>
+                </div>
+                <div class="input-group password-group">
+                    <input type="password" id="password" placeholder="Password" required>
+                    <button type="button" class="toggle-password">
+                        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                    </button>
+                </div>
+                
+                <a href="#" class="forgot-password">Forgot your password?</a>
+
+                <button type="submit" class="submit-btn">Sign In</button>
+            </form>
+
+            <p class="signup-prompt">New to BC.GAME? <a href="#">Create account</a></p>
+
+            <div class="divider">
+                <span>Log in directly with</span>
+            </div>
+
+            <div class="social-login">
+                <button class="social-btn passkey">
+                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+                    Sign In with passkey
+                </button>
+                
+                <div class="social-icons">
+                    <button class="icon-btn"><img src="https://www.google.com/favicon.ico" alt="Google"></button>
+                    <button class="icon-btn"><img src="https://telegram.org/favicon.ico" alt="Telegram"></button>
+                    <button class="icon-btn"><img src="https://www.facebook.com/favicon.ico" alt="FB"></button>
+                    <button class="icon-btn"><img src="https://www.whatsapp.com/favicon.ico" alt="WA"></button>
+                    <button class="icon-btn"><img src="https://line.me/favicon.ico" alt="Line"></button>
+                    <button class="icon-btn"><img src="https://steampowered.com/favicon.ico" alt="Steam"></button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
