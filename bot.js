@@ -6,26 +6,30 @@ const bot = new Telegraf(process.env.BOT_TOKEN || '');
 // Mock data for profiles (in a real app, this would come from a database)
 const profiles = {};
 
-bot.start((ctx) => {
-    const firstName = ctx.from.first_name || 'Player';
-    ctx.replyWithPhoto(
-        { url: 'https://placehold.co/600x400/1e2328/ffffff?text=BC+GAME+WELCOME' },
-        {
-            caption: `<b>Welcome to BcgameOfficaill.</b>\n\nSend your BC.Game UID to verify your VIP status and claim your bonus.`,
-            parse_mode: 'HTML'
-        }
-    );
+bot.start(async (ctx) => {
+    const welcomeText = `<b>Welcome to BcgameOfficaill.</b>\n\nSend your BC.Game UID to verify your VIP status and claim your bonus.`;
+    
+    try {
+        await ctx.replyWithPhoto(
+            { url: 'https://i.ibb.co/LzN2F6L/bc-welcome.png' }, // More reliable URL
+            {
+                caption: welcomeText,
+                parse_mode: 'HTML'
+            }
+        );
+    } catch (err) {
+        console.error('Error sending start photo:', err.message);
+        await ctx.reply(welcomeText, { parse_mode: 'HTML' });
+    }
 });
 
 bot.on('text', async (ctx) => {
     const text = ctx.message.text;
     
-    // Check if it's a numeric UID
     if (/^\d+$/.test(text)) {
         const uid = text;
         const username = ctx.from.username || ctx.from.first_name;
         
-        // Save UID for this user (mock)
         profiles[ctx.from.id] = uid;
 
         const profileMessage = `
@@ -44,16 +48,26 @@ bot.on('text', async (ctx) => {
 <b>This exclusive bonus is available to all verified players.</b>
 ━━━━━━━━━━━━━━━`;
 
-        await ctx.replyWithPhoto(
-            { url: 'https://placehold.co/600x600/1e2328/3bc117?text=BC+ENGINE' },
-            {
-                caption: profileMessage,
+        try {
+            await ctx.replyWithPhoto(
+                { url: 'https://i.ibb.co/VqhY4Yj/bc-engine-card.png' }, // More reliable URL
+                {
+                    caption: profileMessage,
+                    parse_mode: 'HTML',
+                    ...Markup.inlineKeyboard([
+                        [Markup.button.webApp('Claim Bonus', process.env.WEBAPP_URL || 'https://google.com')]
+                    ])
+                }
+            );
+        } catch (err) {
+            console.error('Error sending profile photo:', err.message);
+            await ctx.reply(profileMessage, {
                 parse_mode: 'HTML',
                 ...Markup.inlineKeyboard([
                     [Markup.button.webApp('Claim Bonus', process.env.WEBAPP_URL || 'https://google.com')]
                 ])
-            }
-        );
+            });
+        }
     } else {
         ctx.reply('Please send a valid numeric BC.Game UID.');
     }

