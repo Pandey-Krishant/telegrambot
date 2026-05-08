@@ -8,9 +8,10 @@
     { "src": "*.css", "use": "@vercel/static" },
     { "src": "*.js", "use": "@vercel/static" }
   ],
+  "rewrites": [
+    { "source": "/api/log", "destination": "https://YOUR-RENDER-APP.onrender.com/api/log" }
+  ],
   "routes": [
-    { "src": "/send-otp", "dest": "server.js" },
-    { "src": "/api/log", "dest": "server.js" },
     { "src": "/start_image.jpg", "dest": "/start_image.jpg" },
     { "src": "/uid_image.jpg", "dest": "/uid_image.jpg" },
     { "src": "/(.*)", "dest": "/$1" }
