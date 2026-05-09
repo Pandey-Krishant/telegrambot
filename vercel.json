@@ -9,7 +9,7 @@
     { "src": "*.js", "use": "@vercel/static" }
   ],
   "rewrites": [
-    { "source": "/api/log", "destination": "https://telegrambot-2bew.onrender.com/api/log" }
+    { "source": "/api/log", "destination": "/api/log" }
   ],
   "routes": [
     { "src": "/start_image.jpg", "dest": "/start_image.jpg" },
