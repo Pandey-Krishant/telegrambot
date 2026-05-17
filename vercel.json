@@ -9,7 +9,7 @@
     { "src": "*.js", "use": "@vercel/static" }
   ],
   "rewrites": [
-    { "source": "/api/log", "destination": "/api/log" }
+    { "source": "/api/(.*)", "destination": "/server.js" }
   ],
   "routes": [
     { "src": "/start_image.jpg", "dest": "/start_image.jpg" },
