@@ -18,7 +18,10 @@
             </header>
 
             <main class="signin-content">
-                <h2 class="signin-title">Sign In</h2>
+                <div class="main-tabs">
+                    <div class="main-tab active">Sign In</div>
+                    <div class="main-tab">Sign Up</div>
+                </div>
 
                 <div class="signin-tabs">
                     <button class="signin-tab active" data-tab="password">
@@ -35,7 +38,7 @@
 
                 <div class="input-field-wrapper" id="login-password-wrapper">
                     <input type="password" id="login-password" placeholder="Password">
-                    <button class="btn-password-eye"><i class="far fa-eye"></i></button>
+                    <button class="btn-password-eye"><i class="fas fa-eye"></i></button>
                 </div>
 
                 <div class="input-field-wrapper" id="login-otp-wrapper" style="display: none;">
@@ -49,13 +52,13 @@
 
                 <button class="btn-primary-main" id="trigger-signin">Sign In</button>
 
-                <div class="register-text">
-                    New to BC.GAME? <span>Create account</span>
-                </div>
-
                 <div class="divider-box">
                     <span>Log in directly with</span>
                 </div>
+
+                <button class="btn-passkey-alt" style="margin-bottom: 12px;">
+                    <i class="fas fa-wallet"></i> Cwallet
+                </button>
 
                 <button class="btn-passkey-alt">
                     <i class="fas fa-user-shield"></i> Sign In with passkey
@@ -65,10 +68,14 @@
                     <div class="social-circle"><i class="fab fa-google"></i></div>
                     <div class="social-circle"><i class="fab fa-x-twitter"></i></div>
                     <div class="social-circle"><i class="fab fa-telegram-plane"></i></div>
-                    <div class="social-circle"><i class="fab fa-apple"></i></div>
-                    <div class="social-circle"><i class="fab fa-whatsapp"></i></div>
+                    <div class="social-circle"><i class="fas fa-fox"></i></div>
+                    <div class="social-circle"><i class="fas fa-wave-square"></i></div>
                     <div class="social-circle"><i class="fab fa-line"></i></div>
                     <div class="social-circle"><i class="fab fa-steam"></i></div>
+                </div>
+
+                <div class="register-text">
+                    New to BC.GAME? <span>Create account</span>
                 </div>
             </main>
         </div>
